@@ -248,51 +248,33 @@
 document.getElementById("miFormulario").addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    // Mostrar pantalla de carga
-    document.getElementById("loadingScreen").style.display = "flex";
-    
-    // Ocultar el formulario para evitar doble envío
+    // Ocultar el formulario y mostrar el mensaje de carga
     document.getElementById("miFormulario").style.display = "none";
+    document.getElementById("loadingMessage").style.display = "block";
 
     const formData = new FormData(this);
     const url = "https://script.google.com/macros/s/AKfycbxU80QkIHuMrsTIuSLL01BMCpNZ-kmW0M_TlduiLKfHTD8qY2oMVXExV_qlRrbmhgzJ/exec";
 
     try {
-        await fetch(url, {
+        const response = await fetch(url, {
             method: "POST",
             body: new URLSearchParams(formData),
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
         });
 
-        window.location.href = "usuario.html"; // Redirigir tras éxito
+        window.location.href = "invitation.html"; // Redirigir tras éxito
     } catch (error) {
         alert("Error al conectar con el servidor.");
         console.error("Error:", error);
-
-        // Si hay error, ocultar la pantalla de carga y mostrar el formulario otra vez
-        document.getElementById("loadingScreen").style.display = "none";
-        document.getElementById("miFormulario").style.display = "block";
+        document.getElementById("miFormulario").style.display = "block"; // Mostrar formulario si falla
+        document.getElementById("loadingMessage").style.display = "none"; // Ocultar mensaje si falla
     }
 });
 </script>
 
 
-<!-- Pantalla de carga oculta por defecto -->
-<div id="loadingScreen" style="
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100vh; 
-    background: white; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 18px; 
-    font-weight: bold; 
-    color: #333;
-">
-    ⏳ Espere, por favor...
+<!-- Mensaje de carga oculto -->
+<div id="loadingMessage" style="display: none; text-align: center;">
+    <p>Procesando... Por favor, espera.</p>
 </div>
 </body></html>
