@@ -2,7 +2,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     event.preventDefault();
 
     const formData = new FormData(this);
-    const url = "https://script.google.com/macros/s/AKfycbxU80QkIHuMrsTIuSLL01BMCpNZ-kmW0M_TlduiLKfHTD8qY2oMVXExV_qlRrbmhgzJ/exec"; // Reemplaza con tu URL de Google Apps Script
+    const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec"; // Reemplaza con tu URL de Google Apps Script
 
     try {
         const response = await fetch(url, {
