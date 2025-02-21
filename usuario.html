@@ -3,10 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos Enviados</title>
+    <title>Solicitud de Acceso a la Carpeta Enviada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333333;
+            font-size: 18px;
+        }
+        p {
+            color: #666666;
+            font-size: 14px;
+        }
+        .folder-link {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+        }
+        .folder-icon {
+            width: 50px;
+            height: auto;
+            fill: #4285f4; /* Cambia el color del icono si es necesario */
+        }
+    </style>
 </head>
 <body>
-    <h2>Datos enviados correctamente</h2>
-    <p>Revisaremos la información y te contactaremos pronto.</p>
+    <div class="container">
+        <h2>Solicitud de acceso a la carpeta enviada</h2>
+        <p>Tu solicitud ha sido enviada correctamente. Por favor, espera que el anfitrión te acepte y luego revisa la carpeta de Google Drive.</p>
+        <a href="https://drive.google.com/drive/folders/1H0CFBGujvfqDLF9hiWWyL35r3e64y9Ij?usp=sharing" class="folder-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="folder-icon">
+                <path d="M14 6H6c-.55 0-1 .45-1 1v2H3c-1.1 0-1.99.9-1.99 2L1 19c0 1.1.89 2 1.99 2H21c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2h-2V7c0-.55-.45-1-1-1h-5c-.55 0-1 .45-1 1v2h2V8zm4 2v2h2v2h-2v2h-2v-2h-2v2H8v-2H6v-2h2V8H6V6h2V4h10v2h-2zM6 19V9h12v10H6z"/>
+            </svg>
+        </a>
+    </div>
 </body>
 </html>
