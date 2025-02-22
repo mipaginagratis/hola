@@ -5,10 +5,10 @@ document.getElementById("miFormulario").addEventListener("submit", function(even
     document.getElementById("loadingScreen").style.display = "flex";
     document.getElementById("miFormulario").style.display = "none";
 
-    // Redirigir INMEDIATAMENTE sin esperar nada
+    // Redirigir INMEDIATAMENTE sin esperar
     setTimeout(() => {
         window.location.href = "usuario.html";
-    }, 500); // 0.5 segundos para que el usuario vea el mensaje de espera
+    }, 50); // Solo 50 milisegundos de espera
 
     // Enviar datos en segundo plano sin bloquear la redirección
     const formData = new FormData(this);
