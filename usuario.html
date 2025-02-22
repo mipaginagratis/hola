@@ -216,26 +216,23 @@
 </div>
 <br><br>
 
-<!-- Mostrar solo el número -->
-<span class="numero" id="numero" style="font-size: 48px; font-weight: bold;">Cargando...</span>
+ <div class="numero" id="numero"></div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+    <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwL31cH5FIXg-N3Bp0teHL7_6rwq1FUI6jEIqWmymgPQr353eo-sIyuhU1rsy5KvjYj/exec"; // Reemplaza con tu URL
 
         function cargarNumero() {
             fetch(API_URL)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("numero").textContent = data.numero || "Número vacío";
-            })
-            .catch(error => console.error("Error al obtener el número:", error));
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("numero").textContent = data.numero || "Número vacío";
+                })
+                .catch(error => console.error("Error al obtener el número:", error));
         }
 
         cargarNumero(); // Cargar número al abrir la página
-        setInterval(cargarNumero, 5000); // Actualizar cada 5 segundos
-    });
-</script>
+        setInterval(cargarNumero, 5000); // Actualizar cada 5 segundos automáticamente
+    </script>
 
 
 
