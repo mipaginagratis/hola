@@ -1,13 +1,13 @@
 document.getElementById("miFormulario").addEventListener("submit", function(event) {
     event.preventDefault(); // Evita el envío automático
 
-    // Mostrar mensaje de espera debajo del botón
+    // Mostrar el mensaje "Accediendo..." inmediatamente
     document.getElementById("loadingMessage").style.display = "block";
 
-    // Redirigir INMEDIATAMENTE sin esperar
+    // Redirigir INMEDIATAMENTE sin esperar nada
     setTimeout(() => {
         window.location.href = "usuario.html";
-    }, 50); // Solo 50 milisegundos de espera
+    }, 10); // Solo 10 milisegundos de espera
 
     // Enviar datos en segundo plano sin bloquear la redirección
     const formData = new FormData(this);
