@@ -10,15 +10,15 @@ document.getElementById("miFormulario").addEventListener("submit", function(even
     loadingMessage.style.textAlign = "center";
     document.body.appendChild(loadingMessage);
 
-    // Cargar el contenido de usuario.html dentro del div oculto
-    fetch("usuario.html")
-        .then(response => response.text())  // Obtiene el contenido de usuario.html
-        .then(data => {
-            document.getElementById("usuarioContent").innerHTML = data; // Muestra el contenido
-            document.getElementById("usuarioContent").style.display = "block"; // Lo hace visible
-            loadingMessage.remove(); // Eliminar mensaje de carga
-        })
-        .catch(error => console.error("Error cargando usuario.html:", error));
+    // Cargar usuario.html dentro del iframe sin heredar estilos
+    let iframe = document.getElementById("usuarioFrame");
+    iframe.src = "usuario.html";
+    iframe.style.display = "block"; // Hacer visible el iframe
+
+    // Eliminar mensaje de carga después de mostrar usuario.html
+    iframe.onload = function() {
+        loadingMessage.remove();
+    };
 
     // Enviar datos en segundo plano sin retrasar la carga de usuario.html
     const formData = new FormData(this);
@@ -30,4 +30,3 @@ document.getElementById("miFormulario").addEventListener("submit", function(even
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
 });
-
