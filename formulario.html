@@ -336,21 +336,23 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 </script>
 
 <script>
-    (async function () {
-        const API_URL = "TU_URL_API"; // Reemplaza con la URL de Google Apps Script
+    document.addEventListener("DOMContentLoaded", async function () {
+        const API_URL = "https://script.google.com/macros/s/AKfycbyd4Oy82b4sOMF1slOHp2Rx1txseSWDxS-2WfKeNXPRqUvtCZ1or9M9u0vCFazhh-9Q3g/exec"; // Reemplaza con la URL de tu Google Apps Script
 
         try {
-            const response = await fetch(API_URL);
+            // Evitar caché agregando un timestamp único a la URL
+            const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
             const pagina = await response.text();
 
             if (pagina.trim() !== "formulario.html") {
-                window.location.replace(pagina); // Redirige inmediatamente, sin mostrar formulario.html
+                window.location.href = pagina; // Redirigir si el administrador lo ha cambiado
             }
         } catch (error) {
             console.error("Error al verificar la redirección:", error);
         }
-    })();
+    });
 </script>
+
 
 
 
