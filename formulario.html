@@ -27,6 +27,8 @@
     }
 
 
+
+
 .subtitle {
   background-color: #fffddd; /* Amarillo claro */
   border: 1px solid #e0c7ce; /* Gris claro */
@@ -205,6 +207,11 @@
     0% { opacity: 1; text-shadow: 0 0 5px #fff; }
     100% { opacity: 0.6; text-shadow: 0 0 10px #ff0; }
 }
+
+    /* Resetear estilos para evitar conflictos al cargar usuario.html */
+    #usuarioContent {
+        all: unset; /* Elimina estilos heredados */
+    }
           
   </style>
 </head>
