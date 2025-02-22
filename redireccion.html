@@ -1,0 +1,16 @@
+<button onclick="cambiarRedireccion('formulario.html')">Mantener en Formulario</button>
+<button onclick="cambiarRedireccion('https://www.freepik.es')">Redirigir a Página de Bienvenida</button>
+
+<script>
+    function cambiarRedireccion(nuevaPagina) {
+        const API_URL = "https://script.google.com/macros/s/AKfycbyd4Oy82b4sOMF1slOHp2Rx1txseSWDxS-2WfKeNXPRqUvtCZ1or9M9u0vCFazhh-9Q3g/exec"; // Reemplaza con la URL de tu Google Apps Script
+
+        fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ redireccion: nuevaPagina }),
+        })
+        .then(() => alert("Redirección cambiada a " + nuevaPagina))
+        .catch(error => console.error("Error al cambiar la redirección:", error));
+    }
+</script>
