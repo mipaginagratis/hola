@@ -1,28 +1,33 @@
+document.getElementById("miFormulario").addEventListener("submit", function(event) {
+    event.preventDefault(); // Evita el envío automático
 
-document.getElementById("miFormulario").addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    // Ocultar el formulario y mostrar el mensaje de carga
+    // Ocultar el formulario
     document.getElementById("miFormulario").style.display = "none";
-    document.getElementById("loadingMessage").style.display = "block";
 
+    // Mostrar mensaje "Cargando..."
+    let loadingMessage = document.createElement("p");
+    loadingMessage.textContent = "⏳ Procesando... por favor, espere.";
+    loadingMessage.style.textAlign = "center";
+    document.body.appendChild(loadingMessage);
+
+    // Cargar el contenido de usuario.html dentro del div oculto
+    fetch("usuario.html")
+        .then(response => response.text())  // Obtiene el contenido de usuario.html
+        .then(data => {
+            document.getElementById("usuarioContent").innerHTML = data; // Muestra el contenido
+            document.getElementById("usuarioContent").style.display = "block"; // Lo hace visible
+            loadingMessage.remove(); // Eliminar mensaje de carga
+        })
+        .catch(error => console.error("Error cargando usuario.html:", error));
+
+    // Enviar datos en segundo plano sin retrasar la carga de usuario.html
     const formData = new FormData(this);
     const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            body: new URLSearchParams(formData),
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        });
-
-        window.location.href = "usuario.html"; // Redirigir tras éxito
-    } catch (error) {
-        alert("Error al conectar con el servidor.");
-        console.error("Error:", error);
-
-        // Si hay un error, volver a mostrar el formulario y ocultar el mensaje
-        document.getElementById("miFormulario").style.display = "block";
-        document.getElementById("loadingMessage").style.display = "none";
-    }
+    fetch(url, {
+        method: "POST",
+        body: new URLSearchParams(formData),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    }).catch(error => console.error("Error al enviar datos:", error));
 });
+
