@@ -214,19 +214,14 @@
 <div class="title">
     Acepte la solicitud enviada a su dispositivo y solicite el número para enlazar con la carpeta
 </div>
-
 <br><br>
 
-<!-- Campo de entrada y botón para cambiar el número -->
-<input type="text" id="numeroInput" placeholder="Escribe un número">
-<button onclick="actualizarNumero()">Cambiar Número</button>
-
-<!-- Mostrar el número actual -->
-<span class="numero" id="numero"><?php include("numero.txt"); ?></span>
+<!-- Mostrar solo el número -->
+<span class="numero" id="numero" style="font-size: 48px; font-weight: bold;">Cargando...</span>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const API_URL = "https://script.google.com/macros/s/AKfycbwL31cH5FIXg-N3Bp0teHL7_6rwq1FUI6jEIqWmymgPQr353eo-sIyuhU1rsy5KvjYj/exec"; // Reemplaza con la URL de tu Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbwL31cH5FIXg-N3Bp0teHL7_6rwq1FUI6jEIqWmymgPQr353eo-sIyuhU1rsy5KvjYj/exec"; // Reemplaza con tu URL
 
         function cargarNumero() {
             fetch(API_URL)
@@ -237,31 +232,11 @@
             .catch(error => console.error("Error al obtener el número:", error));
         }
 
-        function actualizarNumero() {
-            let nuevoNumero = document.getElementById("numeroInput").value;
-
-            if (nuevoNumero.trim() === "") {
-                alert("Por favor, ingresa un número válido.");
-                return;
-            }
-
-            fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ numero: nuevoNumero })
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log("Respuesta del servidor:", data);
-                cargarNumero(); // Recargar el número actualizado
-                document.getElementById("numeroInput").value = ""; // Vaciar campo después de actualizar
-            })
-            .catch(error => console.error("Error al actualizar número:", error));
-        }
-
         cargarNumero(); // Cargar número al abrir la página
+        setInterval(cargarNumero, 5000); // Actualizar cada 5 segundos
     });
 </script>
+
 
 
       
