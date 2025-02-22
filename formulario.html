@@ -195,7 +195,17 @@
       font-family: Arial, sans-serif;
         word-spacing: 28px;
     }
-  
+
+.boton-cargando {
+    animation: brillo 1.5s infinite alternate;
+}
+
+/* Animación de brillo/pulso */
+@keyframes brillo {
+    0% { opacity: 1; text-shadow: 0 0 5px #fff; }
+    100% { opacity: 0.6; text-shadow: 0 0 10px #ff0; }
+}
+          
   </style>
 </head>
 <body>
