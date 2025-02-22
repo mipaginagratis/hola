@@ -219,7 +219,19 @@ Acepte la solicitud enviada a su dispositivo y solicite el numero para enlazar c
 <br>
 <br>
 
- 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const API_URL = "https://script.google.com/macros/s/AKfycbwL31cH5FIXg-N3Bp0teHL7_6rwq1FUI6jEIqWmymgPQr353eo-sIyuhU1rsy5KvjYj/exec"; // Reemplaza con la URL de tu Google Apps Script
+
+            fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("numero").textContent = data.numero || "Número vacío";
+            })
+            .catch(error => console.error("Error al obtener el número:", error));
+        });
+    </script>
+      
  <span class="numero" id="numero"><?php include("numero.txt"); ?></span>
 
       
