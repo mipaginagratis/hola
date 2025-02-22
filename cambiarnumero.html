@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambiar Número</title>
+</head>
+<body>
+    <h1>Formulario para cambiar número</h1>
+    
+    <label for="numero">Número:</label>
+    <input type="number" id="numero" value="12">
+    
+    <label for="vaciar">Vaciar número:</label>
+    <select id="vaciar">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+    </select>
+
+    <button onclick="cambiarNumero()">Cambiar</button>
+
+    <script>
+        function cambiarNumero() {
+            let numero = document.getElementById("numero").value;
+            let vaciar = document.getElementById("vaciar").value;
+
+            // Si el usuario elige "Sí" en Vaciar número, se envía un valor vacío
+            if (vaciar === "si") {
+                numero = "";
+            }
+
+            const API_URL = "TU_URL_API"; // Reemplaza con la URL de tu Google Apps Script
+
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ numero: numero })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert("Número actualizado correctamente.");
+                window.location.href = "usuario.html"; // Redirige a usuario.html
+            })
+            .catch(error => console.error("Error al cambiar el número:", error));
+        }
+    </script>
+</body>
+</html>
