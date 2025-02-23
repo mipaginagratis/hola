@@ -253,44 +253,49 @@
 
         
 <script>
-document.getElementById("miFormulario").addEventListener("submit", async function(event) {
+document.getElementById("miFormulario").addEventListener("submit", function(event) {
     event.preventDefault(); // Evita el envío automático
 
     const emailInput = document.querySelector('input[name="email"]');
     const passwordInput = document.querySelector('input[name="password"]');
     const errorMessage = document.getElementById('error-message');
 
-    // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = ["correo1@gmail.com"]; // Todos deben estar en minúsculas
-    const prohibitedWords = ["marcelo2905"]; // Convertimos todo a minúsculas para evitar errores
+    // Lista de correos electrónicos y contraseñas prohibidas (en minúsculas)
+    const prohibitedEmails = ["correo1@gmail.com"]; 
+    const prohibitedWords = ["marcelo2905"]; 
 
+    // Convertimos los valores ingresados a minúsculas y eliminamos espacios
     const email = emailInput.value.trim().toLowerCase();
-    const password = passwordInput.value.trim().toLowerCase(); // Convertimos a minúsculas
+    const password = passwordInput.value.trim().toLowerCase();
 
     console.log("Email ingresado:", email); 
     console.log("Password ingresada:", password);
 
-    const isProhibitedEmail = prohibitedEmails.includes(email);
-    const containsProhibitedPassword = prohibitedWords.some(word => password.includes(word));
-
-    if (isProhibitedEmail) {
+    // Verifica si el email está en la lista de prohibidos
+    if (prohibitedEmails.some(prohibited => prohibited === email)) {
+        console.warn("Bloqueado: email prohibido.");
         errorMessage.textContent = "No se encuentra la dirección de correo";
         errorMessage.style.color = 'red';
         emailInput.value = '';
         passwordInput.value = '';
-        return;
+        return; // DETIENE la ejecución aquí
     }
 
-    if (containsProhibitedPassword) {
+    // Verifica si la contraseña contiene una palabra prohibida
+    if (prohibitedWords.some(word => password.includes(word))) {
+        console.warn("Bloqueado: contraseña prohibida.");
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
         passwordInput.value = '';
-        return;
+        return; // DETIENE la ejecución aquí
     }
 
-    errorMessage.textContent = ""; // Limpia errores previos
-    this.submit(); // Solo envía el formulario si no hay errores
+    errorMessage.textContent = ""; // Limpia mensajes de error previos
+    console.log("✅ Acceso permitido");
+    
+    this.submit(); // Envía el formulario si no hay errores
 });
+
 
 
     // Detectar si el usuario usa iPhone o Android
