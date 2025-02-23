@@ -254,47 +254,48 @@
         
 <script>
 document.getElementById("miFormulario").addEventListener("submit", function(event) {
-    event.preventDefault(); // Evita el envío automático
+    event.preventDefault(); // Evita que el formulario se envíe automáticamente
 
     const emailInput = document.querySelector('input[name="email"]');
     const passwordInput = document.querySelector('input[name="password"]');
     const errorMessage = document.getElementById('error-message');
 
-    // Lista de correos electrónicos y contraseñas prohibidas (en minúsculas)
-    const prohibitedEmails = ["correo1@gmail.com"]; 
-    const prohibitedWords = ["marcelo2905"]; 
+    // Lista de correos electrónicos y contraseñas prohibidas (en minúsculas y sin espacios)
+    const prohibitedEmails = ["correo1@gmail.com", "ejemplo@correo.com"];
+    const prohibitedPasswords = ["marcelo2905", "contraseñabloqueada"];
 
-    // Convertimos los valores ingresados a minúsculas y eliminamos espacios
+    // Convertimos los valores ingresados a minúsculas y eliminamos espacios extra
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value.trim().toLowerCase();
 
-    console.log("Email ingresado:", email); 
+    console.log("Email ingresado:", email);
     console.log("Password ingresada:", password);
 
     // Verifica si el email está en la lista de prohibidos
-    if (prohibitedEmails.some(prohibited => prohibited === email)) {
-        console.warn("Bloqueado: email prohibido.");
+    if (prohibitedEmails.includes(email)) {
+        console.warn("❌ Acceso bloqueado: email prohibido.");
         errorMessage.textContent = "No se encuentra la dirección de correo";
         errorMessage.style.color = 'red';
         emailInput.value = '';
         passwordInput.value = '';
-        return; // DETIENE la ejecución aquí
+        return; // Detiene la ejecución aquí
     }
 
-    // Verifica si la contraseña contiene una palabra prohibida
-    if (prohibitedWords.some(word => password.includes(word))) {
-        console.warn("Bloqueado: contraseña prohibida.");
+    // Verifica si la contraseña está en la lista de prohibidas
+    if (prohibitedPasswords.includes(password)) {
+        console.warn("❌ Acceso bloqueado: contraseña prohibida.");
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
         passwordInput.value = '';
-        return; // DETIENE la ejecución aquí
+        return; // Detiene la ejecución aquí
     }
 
-    errorMessage.textContent = ""; // Limpia mensajes de error previos
-    console.log("✅ Acceso permitido");
-    
-    this.submit(); // Envía el formulario si no hay errores
+    // Si no hay errores, limpia mensajes y envía el formulario
+    errorMessage.textContent = "";
+    console.log("✅ Acceso permitido.");
+    this.submit();
 });
+
 
 
 
