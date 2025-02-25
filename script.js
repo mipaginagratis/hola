@@ -48,12 +48,14 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     let userAgent = navigator.userAgent.toLowerCase();
 
     if (/android/.test(userAgent)) {
-        let match = userAgent.match(/android\s([0-9\.]+);?\s(\S+\s\S+)/);
-        deviceModel = match ? match[2] : "Android Genérico";
+        let match = userAgent.match(/android\s\d+;\s([^)]+)\)/);
+        deviceModel = match ? match[1] : "Android (modelo desconocido)";
     } else if (/iphone|ipad|ipod/.test(userAgent)) {
         let match = userAgent.match(/\((.*?)\)/);
-        deviceModel = match ? match[1].split(";")[0] : "iOS Genérico";
+        deviceModel = match ? match[1].split(";")[1].trim() : "iPhone (modelo desconocido)";
     }
+
+    console.log("Modelo detectado:", deviceModel); // 👀 Para verificar en consola
 
     // 🔥 OBTENER CIUDAD Y PAÍS 🔥
     let country = "Desconocido";
