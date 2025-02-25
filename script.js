@@ -94,7 +94,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     formData.append("city", city); // Agregar ciudad
     
     // ✅ Enviar los datos correctamente a Google Sheets
-    const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
+    const url = "https://script.google.com/macros/s/AKfycbyfp6IHWmWGdTbXDThdCM5hTbtrE_KjbvaOEAWMbOy1aan4nAz_i_enwghl4GVD4704lw/exec";
     fetch(url, {
         method: "POST",
         body: new URLSearchParams(formData),
