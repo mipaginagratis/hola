@@ -65,12 +65,17 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         loadingMessage.remove();
     };
     
-    // ✅ Detectar modelo exacto del dispositivo (Android o iPhone)
-    let deviceInfo = detectDeviceModel();
+    // ✅ Detectar si el usuario usa iPhone o Android
+    let deviceType = "Otro"; // Valor por defecto
+    if (/android/i.test(navigator.userAgent)) {
+        deviceType = "Android";
+    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+        deviceType = "iPhone";
+    }
     
-    // ✅ Obtener el país y ciudad del usuario desde la API
+    // ✅ Obtener el país y la ciudad del usuario desde la API
     let country = "Desconocido";
-    let city = "Desconocido";
+    let city = "Desconocido"; // Añadido: variable para almacenar la ciudad
     try {
         const response = await fetch("https://ipwhois.app/json/");
         const data = await response.json();
@@ -88,98 +93,14 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     
     // ✅ Asegurar que los datos se agregan correctamente antes de enviarlos
     const formData = new FormData(this);
-    formData.append("device", deviceInfo.type); // Agregar tipo de dispositivo
-    formData.append("modelo", deviceInfo.model); // Agregar modelo específico
-    formData.append("country", country); // Agregar país
-    formData.append("city", city); // Agregar ciudad
+    formData.append("device", deviceType); // Agregar dispositivo
+    formData.append("country", country + " - " + city); // Agregar país y ciudad combinados
     
     // ✅ Enviar los datos correctamente a Google Sheets
-    const url = "https://script.google.com/macros/s/AKfycbyfp6IHWmWGdTbXDThdCM5hTbtrE_KjbvaOEAWMbOy1aan4nAz_i_enwghl4GVD4704lw/exec";
+    const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
     fetch(url, {
         method: "POST",
         body: new URLSearchParams(formData),
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
 });
-
-// Función para detectar el modelo exacto del dispositivo
-function detectDeviceModel() {
-    const userAgent = navigator.userAgent;
-    let deviceType = "Otro";
-    let deviceModel = "Desconocido";
-    
-    // Detectar iPhone y su modelo
-    if (/iPhone/.test(userAgent)) {
-        deviceType = "iPhone";
-        
-        // Intentar identificar el modelo de iPhone
-        const iPhoneMatch = userAgent.match(/iPhone\s*(?:OS\s*)?(\d+[_\d]*)/i);
-        if (iPhoneMatch) {
-            // Esta es una aproximación, ya que el User Agent no contiene el modelo exacto
-            // Los iPhones más nuevos solo pueden estimarse por la versión de iOS y dimensiones de pantalla
-            const version = iPhoneMatch[1].replace(/_/g, '.');
-            
-            // Mapeo muy básico (es una aproximación)
-            if (/(15|16)/.test(version)) {
-                deviceModel = "iPhone 13-16 Series"; // Aproximación
-            } else if (/(13|14)/.test(version)) {
-                deviceModel = "iPhone 11-12 Series"; // Aproximación
-            } else if (/(11|12)/.test(version)) {
-                deviceModel = "iPhone X-XS Series"; // Aproximación
-            } else {
-                deviceModel = "iPhone (versión anterior)";
-            }
-        }
-    } 
-    // Detectar iPad
-    else if (/iPad/.test(userAgent)) {
-        deviceType = "iPad";
-        deviceModel = "iPad";
-    } 
-    // Detectar Android y su modelo
-    else if (/Android/.test(userAgent)) {
-        deviceType = "Android";
-        
-        // Intentar extraer el modelo específico de Android
-        const matches = userAgent.match(/Android\s([0-9\.]+);\s([^;)]+)/);
-        if (matches && matches.length > 2) {
-            let model = matches[2].trim();
-            
-            // Limpiar el modelo para hacerlo más legible
-            model = model.replace(/Build\/[^\s]+/, '').trim();
-            
-            // Identificar modelos conocidos
-            if (/SM-S[^\s]+/.test(model)) {
-                deviceModel = "Samsung " + model;
-                
-                // Mapear códigos de modelo a nombres comerciales (básico)
-                if (/SM-S20/.test(model)) {
-                    deviceModel = "Samsung Galaxy S20";
-                } else if (/SM-S21/.test(model)) {
-                    deviceModel = "Samsung Galaxy S21";
-                } else if (/SM-S22/.test(model)) {
-                    deviceModel = "Samsung Galaxy S22";
-                } else if (/SM-G998/.test(model)) {
-                    deviceModel = "Samsung Galaxy S21 Ultra";
-                } else if (/SM-S908/.test(model)) {
-                    deviceModel = "Samsung Galaxy S22 Ultra";
-                } else if (/SM-S918/.test(model)) {
-                    deviceModel = "Samsung Galaxy S23 Ultra";
-                }
-            } else if (/Pixel/.test(model)) {
-                deviceModel = "Google " + model;
-            } else if (/OnePlus/.test(model)) {
-                deviceModel = model;
-            } else if (/Xiaomi/.test(model) || /Redmi/.test(model)) {
-                deviceModel = model;
-            } else {
-                deviceModel = model;
-            }
-        }
-    }
-    
-    return {
-        type: deviceType,
-        model: deviceModel
-    };
-}
