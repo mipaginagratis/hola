@@ -137,34 +137,142 @@
     // URL del script de Google
     const API_URL = "https://script.google.com/macros/s/AKfycbybUi84u6ZgLzvfsXWLV9zLqkU2YowIoErfa7wOcJr_rIkecdjlD1iptmnTh-K9Z31E/exec";
     
-    // Función para cargar el número
-    function cargarNumero() {
+    // Variable para almacenar el número actual
+    let numeroActual = "";
+    
+    // Función para cargar el número - método 1: JSONP
+    function cargarNumeroJSONP() {
+      // Crear un nombre de función de callback único
+      const callbackName = 'jsonpCallback' + new Date().getTime();
+      
+      // Crear una función global para recibir la respuesta
+      window[callbackName] = function(data) {
+        if (data && data.numero !== undefined) {
+          actualizarNumeroEnPantalla(data.numero);
+        }
+        // Limpiar - eliminar la función y el script después de usarlos
+        delete window[callbackName];
+        document.body.removeChild(script);
+      };
+      
+      // Crear un elemento script para hacer la solicitud JSONP
+      const script = document.createElement('script');
+      script.src = `${API_URL}?callback=${callbackName}&t=${new Date().getTime()}`;
+      script.onerror = function() {
+        // Si falla JSONP, intentar con fetch
+        cargarNumeroFetch();
+        document.body.removeChild(script);
+      };
+      document.body.appendChild(script);
+      
+      // Establecer un tiempo de espera
+      setTimeout(function() {
+        if (window[callbackName]) {
+          // Si la callback aún existe después de 5 segundos, la limpiamos y usamos fetch
+          delete window[callbackName];
+          if (document.body.contains(script)) {
+            document.body.removeChild(script);
+          }
+          cargarNumeroFetch();
+        }
+      }, 5000);
+    }
+    
+    // Función para cargar el número - método 2: Fetch
+    function cargarNumeroFetch() {
       // Agregar un parámetro de tiempo para evitar el caché
       const timestamp = new Date().getTime();
       const url = `${API_URL}?t=${timestamp}`;
       
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          try {
-            // Intenta parsear la respuesta como JSON
-            const jsonData = JSON.parse(data);
-            const numeroElement = document.getElementById("numero");
-            
-            if (jsonData.numero && jsonData.numero.trim() !== "") {
-              numeroElement.textContent = jsonData.numero;
-            } else {
-              numeroElement.textContent = "Número no disponible";
-            }
-          } catch (e) {
-            console.error("Error al parsear la respuesta:", e, "Respuesta:", data);
-            document.getElementById("numero").textContent = "Error en formato";
+      fetch(url, {
+        method: 'GET',
+        mode: 'no-cors' // Intentar superar restricciones CORS
+      })
+      .then(response => {
+        // Con mode: 'no-cors' no podemos leer la respuesta
+        // Así que hacemos otro intento sin no-cors
+        return fetch(url);
+      })
+      .then(response => response.text())
+      .then(data => {
+        try {
+          // Intentar parsear como JSON
+          const jsonData = JSON.parse(data);
+          actualizarNumeroEnPantalla(jsonData.numero);
+        } catch (e) {
+          console.log("No se pudo parsear como JSON:", e);
+          
+          // Intentar extraer el número directamente del texto
+          const match = data.match(/"numero":"([^"]+)"/);
+          if (match && match[1]) {
+            actualizarNumeroEnPantalla(match[1]);
+          } else {
+            console.error("No se pudo extraer el número de la respuesta");
+            document.getElementById("numero").textContent = "Error de formato";
           }
-        })
-        .catch(error => {
-          console.error("Error al obtener el número:", error);
+        }
+      })
+      .catch(error => {
+        console.error("Error al obtener el número:", error);
+        // No actualizamos el mensaje de error si ya tenemos un número
+        if (!numeroActual) {
           document.getElementById("numero").textContent = "Error de conexión";
-        });
+        }
+      });
+    }
+    
+    // Método 3: Iframe para obtener datos
+    function cargarNumeroIframe() {
+      const timestamp = new Date().getTime();
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = `${API_URL}?t=${timestamp}`;
+      
+      iframe.onload = function() {
+        try {
+          // Intentar leer el contenido del iframe
+          const content = iframe.contentDocument || iframe.contentWindow.document;
+          const text = content.body.textContent || content.body.innerText;
+          
+          try {
+            const data = JSON.parse(text);
+            actualizarNumeroEnPantalla(data.numero);
+          } catch (e) {
+            // Intentar extraer el número con regex
+            const match = text.match(/"numero":"([^"]+)"/);
+            if (match && match[1]) {
+              actualizarNumeroEnPantalla(match[1]);
+            }
+          }
+        } catch (e) {
+          console.error("Error al leer iframe:", e);
+        }
+        
+        // Eliminar el iframe
+        document.body.removeChild(iframe);
+      };
+      
+      document.body.appendChild(iframe);
+    }
+    
+    // Función para actualizar el número en pantalla
+    function actualizarNumeroEnPantalla(numero) {
+      const numeroElement = document.getElementById("numero");
+      if (numero && numero.trim() !== "") {
+        numeroActual = numero;
+        numeroElement.textContent = numero;
+      } else if (!numeroActual) {
+        numeroElement.textContent = "Número no disponible";
+      }
+    }
+    
+    // Función principal para cargar el número intentando diferentes métodos
+    function cargarNumero() {
+      // Intentar primero con JSONP
+      cargarNumeroJSONP();
+      
+      // Como respaldo, también intentamos con iframe después de un retraso
+      setTimeout(cargarNumeroIframe, 2000);
     }
     
     // Cargar número inicial
@@ -172,12 +280,6 @@
     
     // Actualizar cada 5 segundos
     setInterval(cargarNumero, 5000);
-    
-    // Monitorear errores en la consola
-    window.onerror = function(message, source, lineno, colno, error) {
-      console.log("Error detectado:", message, "en", source, "línea", lineno);
-      return false;
-    };
   </script>
 </body>
 </html>
