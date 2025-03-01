@@ -39,19 +39,6 @@
         button:hover {
             background-color: #3367d6;
         }
-        #mensaje {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
     </style>
 </head>
 <body>
@@ -70,51 +57,43 @@
         <button type="submit">Cambiar</button>
     </form>
     
-    <div id="mensaje"></div>
+    <p id="mensaje"></p>
+
+    <!-- Firebase App (es la base) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // URL del script de Google para almacenar datos
-        const API_URL = "https://script.google.com/macros/s/AKfycbybUi84u6ZgLzvfsXWLV9zLqkU2YowIoErfa7wOcJr_rIkecdjlD1iptmnTh-K9Z31E/exec";
+        // Configuración de Firebase
+        const firebaseConfig = {
+  apiKey: "AIzaSyBMpv8I8RyrDFvSF5atpHTgVMqR_Hz3AoY",
+  authDomain: "numero-sincronizacion.firebaseapp.com",
+  databaseURL: "https://numero-sincronizacion-default-rtdb.firebaseio.com",
+  projectId: "numero-sincronizacion",
+  storageBucket: "numero-sincronizacion.firebasestorage.app",
+  messagingSenderId: "298402959829",
+  appId: "1:298402959829:web:f0482c0007a11500886d5c",
+  measurementId: "G-ZQG9SPBT2P"
+};
+    
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Obtener referencia a la base de datos
+        const database = firebase.database();
+        const numeroRef = database.ref('numero');
         
         // Cargar el número actual al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            // Obtener el número actual
-            fetch(API_URL)
-                .then(response => response.text())
-                .then(data => {
-                    try {
-                        // Intentar parsear como JSON
-                        let jsonData;
-                        try {
-                            jsonData = JSON.parse(data);
-                        } catch (e) {
-                            // Si no es JSON, intentar extraer el número
-                            const match = data.match(/"numero":"([^"]+)"/);
-                            if (match && match[1]) {
-                                jsonData = { numero: match[1] };
-                            } else {
-                                throw new Error("Formato de respuesta no reconocido");
-                            }
-                        }
-                        
-                        document.getElementById("nuevo_numero").value = jsonData.numero || "";
-                    } catch (e) {
-                        console.error("Error al procesar la respuesta:", e, "Datos:", data);
-                        mostrarMensaje("Error al cargar el número. Formato de respuesta inválido.", "error");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al obtener el número:", error);
-                    mostrarMensaje("Error al cargar el número. Inténtelo de nuevo.", "error");
-                });
+            numeroRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                document.getElementById("nuevo_numero").value = data || "";
+            }).catch(error => {
+                console.error("Error al obtener el número:", error);
+                document.getElementById("mensaje").textContent = "Error al cargar el número. Inténtelo de nuevo.";
+            });
         });
-        
-        // Mostrar mensaje de estado
-        function mostrarMensaje(texto, tipo) {
-            const mensajeElement = document.getElementById("mensaje");
-            mensajeElement.textContent = texto;
-            mensajeElement.className = tipo;
-        }
         
         // Procesar el formulario
         document.getElementById("formCambiarNumero").addEventListener("submit", function(e) {
@@ -126,54 +105,18 @@
             // Determinar el valor final según la opción de vaciar
             const valorFinal = vaciarNumero ? "" : nuevoNumero;
             
-            mostrarMensaje("Enviando datos...", "");
-            
-            // Método 1: Usar JSONP a través de un iframe (evita problemas CORS)
-            // Crear URL con parámetros para la actualización
-            const updateUrl = `${API_URL}?action=update&numero=${encodeURIComponent(valorFinal)}&callback=updateCallback`;
-            
-            // Crear una función global para recibir la respuesta
-            window.updateCallback = function(response) {
-                if (response && response.success) {
-                    mostrarMensaje("Número actualizado correctamente.", "success");
+            // Actualizar el número en Firebase
+            numeroRef.set(valorFinal)
+                .then(() => {
+                    document.getElementById("mensaje").textContent = "Número actualizado correctamente.";
                     setTimeout(() => {
                         window.location.href = "usuario.html";
                     }, 1500);
-                } else {
-                    mostrarMensaje("Error: " + (response.error || "No se pudo actualizar el número"), "error");
-                }
-            };
-            
-            // Si no hay respuesta después de 10 segundos, mostrar un error
-            const timeout = setTimeout(() => {
-                mostrarMensaje("La operación ha tardado demasiado tiempo. El número podría haberse actualizado, pero no se recibió confirmación.", "error");
-            }, 10000);
-            
-            // Crear y añadir un iframe invisible para hacer la solicitud
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.onload = function() {
-                // El iframe se cargó, pero no sabemos si fue exitoso
-                // La función updateCallback se llamará si todo fue bien
-            };
-            iframe.onerror = function() {
-                clearTimeout(timeout);
-                mostrarMensaje("Error al comunicarse con el servidor. Inténtelo de nuevo.", "error");
-            };
-            iframe.src = updateUrl;
-            document.body.appendChild(iframe);
-            
-            // Intento alternativo: enviar solicitud GET directa como respaldo
-            fetch(`${API_URL}?action=update&numero=${encodeURIComponent(valorFinal)}`, {
-                method: 'GET',
-                mode: 'no-cors' // Intentar eludir restricciones CORS
-            }).then(() => {
-                // No podemos verificar la respuesta debido a 'no-cors',
-                // pero al menos hicimos el intento
-                console.log("Solicitud de respaldo enviada");
-            }).catch(error => {
-                console.error("Error en solicitud de respaldo:", error);
-            });
+                })
+                .catch(error => {
+                    console.error("Error al actualizar el número:", error);
+                    document.getElementById("mensaje").textContent = "Error al actualizar el número. Inténtelo de nuevo.";
+                });
         });
     </script>
 </body>
