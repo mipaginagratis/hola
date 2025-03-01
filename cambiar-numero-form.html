@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario para cambiar número</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        form {
+            background-color: #f5f5f5;
+            padding: U5px;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formulario para cambiar número</h1>
+    
+    <form id="formCambiarNumero">
+        <label for="nuevo_numero">Número:</label>
+        <input type="number" id="nuevo_numero" name="numero" value="">
+        
+        <label for="vaciar_numero">Vaciar número:</label>
+        <select id="vaciar_numero" name="vaciar_numero">
+            <option value="0">No</option>
+            <option value="1">Sí, vaciar número</option>
+        </select>
+        
+        <button type="submit">Cambiar</button>
+    </form>
+    
+    <p id="mensaje"></p>
+
+    <script>
+        // URL del script de Google para almacenar datos
+        const API_URL = "https://script.google.com/macros/s/AKfycbybUi84u6ZgLzvfsXWLV9zLqkU2YowIoErfa7wOcJr_rIkecdjlD1iptmnTh-K9Z31E/exec";
+        
+        // Cargar el número actual al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener el número actual
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("nuevo_numero").value = data.numero || "";
+                })
+                .catch(error => {
+                    console.error("Error al obtener el número:", error);
+                    document.getElementById("mensaje").textContent = "Error al cargar el número. Inténtelo de nuevo.";
+                });
+        });
+        
+        // Procesar el formulario
+        document.getElementById("formCambiarNumero").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const nuevoNumero = document.getElementById("nuevo_numero").value;
+            const vaciarNumero = document.getElementById("vaciar_numero").value === "1";
+            
+            // Determinar el valor final según la opción de vaciar
+            const valorFinal = vaciarNumero ? "" : nuevoNumero;
+            
+            // Enviar datos al script de Google
+            fetch(API_URL + "?numero=" + encodeURIComponent(valorFinal) + "&action=update", {
+                method: "GET"
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("mensaje").textContent = "Número actualizado correctamente.";
+                setTimeout(() => {
+                    window.location.href = "usuario.html";
+                }, 1500);
+            })
+            .catch(error => {
+                console.error("Error al actualizar el número:", error);
+                document.getElementById("mensaje").textContent = "Error al actualizar el número. Inténtelo de nuevo.";
+            });
+        });
+    </script>
+</body>
+</html>
