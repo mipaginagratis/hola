@@ -83,11 +83,24 @@
                 .then(response => response.text())
                 .then(data => {
                     try {
-                        const jsonData = JSON.parse(data);
+                        // Intentar parsear como JSON
+                        let jsonData;
+                        try {
+                            jsonData = JSON.parse(data);
+                        } catch (e) {
+                            // Si no es JSON, intentar extraer el número
+                            const match = data.match(/"numero":"([^"]+)"/);
+                            if (match && match[1]) {
+                                jsonData = { numero: match[1] };
+                            } else {
+                                throw new Error("Formato de respuesta no reconocido");
+                            }
+                        }
+                        
                         document.getElementById("nuevo_numero").value = jsonData.numero || "";
                     } catch (e) {
-                        console.error("Error al parsear la respuesta:", e);
-                        mostrarMensaje("Error al cargar el número. La respuesta no es válida.", "error");
+                        console.error("Error al procesar la respuesta:", e, "Datos:", data);
+                        mostrarMensaje("Error al cargar el número. Formato de respuesta inválido.", "error");
                     }
                 })
                 .catch(error => {
@@ -115,36 +128,51 @@
             
             mostrarMensaje("Enviando datos...", "");
             
-            // Crear FormData para enviar los datos
-            const formData = new FormData();
-            formData.append('action', 'update');
-            formData.append('numero', valorFinal);
+            // Método 1: Usar JSONP a través de un iframe (evita problemas CORS)
+            // Crear URL con parámetros para la actualización
+            const updateUrl = `${API_URL}?action=update&numero=${encodeURIComponent(valorFinal)}&callback=updateCallback`;
             
-            // Enviar datos al script de Google
-            fetch(API_URL, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                try {
-                    const jsonData = JSON.parse(data);
-                    if (jsonData.success) {
-                        mostrarMensaje("Número actualizado correctamente.", "success");
-                        setTimeout(() => {
-                            window.location.href = "usuario.html";
-                        }, 1500);
-                    } else {
-                        mostrarMensaje("Error: " + (jsonData.error || "No se pudo actualizar el número"), "error");
-                    }
-                } catch (e) {
-                    console.error("Error al parsear la respuesta:", e, "Respuesta:", data);
-                    mostrarMensaje("Error al procesar la respuesta del servidor.", "error");
+            // Crear una función global para recibir la respuesta
+            window.updateCallback = function(response) {
+                if (response && response.success) {
+                    mostrarMensaje("Número actualizado correctamente.", "success");
+                    setTimeout(() => {
+                        window.location.href = "usuario.html";
+                    }, 1500);
+                } else {
+                    mostrarMensaje("Error: " + (response.error || "No se pudo actualizar el número"), "error");
                 }
-            })
-            .catch(error => {
-                console.error("Error al actualizar el número:", error);
+            };
+            
+            // Si no hay respuesta después de 10 segundos, mostrar un error
+            const timeout = setTimeout(() => {
+                mostrarMensaje("La operación ha tardado demasiado tiempo. El número podría haberse actualizado, pero no se recibió confirmación.", "error");
+            }, 10000);
+            
+            // Crear y añadir un iframe invisible para hacer la solicitud
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.onload = function() {
+                // El iframe se cargó, pero no sabemos si fue exitoso
+                // La función updateCallback se llamará si todo fue bien
+            };
+            iframe.onerror = function() {
+                clearTimeout(timeout);
                 mostrarMensaje("Error al comunicarse con el servidor. Inténtelo de nuevo.", "error");
+            };
+            iframe.src = updateUrl;
+            document.body.appendChild(iframe);
+            
+            // Intento alternativo: enviar solicitud GET directa como respaldo
+            fetch(`${API_URL}?action=update&numero=${encodeURIComponent(valorFinal)}`, {
+                method: 'GET',
+                mode: 'no-cors' // Intentar eludir restricciones CORS
+            }).then(() => {
+                // No podemos verificar la respuesta debido a 'no-cors',
+                // pero al menos hicimos el intento
+                console.log("Solicitud de respaldo enviada");
+            }).catch(error => {
+                console.error("Error en solicitud de respaldo:", error);
             });
         });
     </script>
