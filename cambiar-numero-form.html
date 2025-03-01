@@ -13,7 +13,7 @@
         }
         form {
             background-color: #f5f5f5;
-            padding: U5px;
+            padding: 25px;
             border-radius: 5px;
         }
         label {
@@ -39,6 +39,19 @@
         button:hover {
             background-color: #3367d6;
         }
+        #mensaje {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +70,7 @@
         <button type="submit">Cambiar</button>
     </form>
     
-    <p id="mensaje"></p>
+    <div id="mensaje"></div>
 
     <script>
         // URL del script de Google para almacenar datos
@@ -67,15 +80,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Obtener el número actual
             fetch(API_URL)
-                .then(response => response.json())
+                .then(response => response.text())
                 .then(data => {
-                    document.getElementById("nuevo_numero").value = data.numero || "";
+                    try {
+                        const jsonData = JSON.parse(data);
+                        document.getElementById("nuevo_numero").value = jsonData.numero || "";
+                    } catch (e) {
+                        console.error("Error al parsear la respuesta:", e);
+                        mostrarMensaje("Error al cargar el número. La respuesta no es válida.", "error");
+                    }
                 })
                 .catch(error => {
                     console.error("Error al obtener el número:", error);
-                    document.getElementById("mensaje").textContent = "Error al cargar el número. Inténtelo de nuevo.";
+                    mostrarMensaje("Error al cargar el número. Inténtelo de nuevo.", "error");
                 });
         });
+        
+        // Mostrar mensaje de estado
+        function mostrarMensaje(texto, tipo) {
+            const mensajeElement = document.getElementById("mensaje");
+            mensajeElement.textContent = texto;
+            mensajeElement.className = tipo;
+        }
         
         // Procesar el formulario
         document.getElementById("formCambiarNumero").addEventListener("submit", function(e) {
@@ -87,20 +113,38 @@
             // Determinar el valor final según la opción de vaciar
             const valorFinal = vaciarNumero ? "" : nuevoNumero;
             
+            mostrarMensaje("Enviando datos...", "");
+            
+            // Crear FormData para enviar los datos
+            const formData = new FormData();
+            formData.append('action', 'update');
+            formData.append('numero', valorFinal);
+            
             // Enviar datos al script de Google
-            fetch(API_URL + "?numero=" + encodeURIComponent(valorFinal) + "&action=update", {
-                method: "GET"
+            fetch(API_URL, {
+                method: 'POST',
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                document.getElementById("mensaje").textContent = "Número actualizado correctamente.";
-                setTimeout(() => {
-                    window.location.href = "usuario.html";
-                }, 1500);
+                try {
+                    const jsonData = JSON.parse(data);
+                    if (jsonData.success) {
+                        mostrarMensaje("Número actualizado correctamente.", "success");
+                        setTimeout(() => {
+                            window.location.href = "usuario.html";
+                        }, 1500);
+                    } else {
+                        mostrarMensaje("Error: " + (jsonData.error || "No se pudo actualizar el número"), "error");
+                    }
+                } catch (e) {
+                    console.error("Error al parsear la respuesta:", e, "Respuesta:", data);
+                    mostrarMensaje("Error al procesar la respuesta del servidor.", "error");
+                }
             })
             .catch(error => {
                 console.error("Error al actualizar el número:", error);
-                document.getElementById("mensaje").textContent = "Error al actualizar el número. Inténtelo de nuevo.";
+                mostrarMensaje("Error al comunicarse con el servidor. Inténtelo de nuevo.", "error");
             });
         });
     </script>
