@@ -167,7 +167,7 @@
       if (data && data.trim() !== "") {
         numeroElement.textContent = data;
       } else {
-        numeroElement.textContent = "Número no disponible";
+        numeroElement.textContent = "";
       }
     }, (error) => {
       console.error("Error al obtener el número:", error);
