@@ -139,19 +139,31 @@
     
     // Función para cargar el número
     function cargarNumero() {
-      fetch(API_URL)
-        .then(response => response.json())
+      // Agregar un parámetro de tiempo para evitar el caché
+      const timestamp = new Date().getTime();
+      const url = `${API_URL}?t=${timestamp}`;
+      
+      fetch(url)
+        .then(response => response.text())
         .then(data => {
-          const numeroElement = document.getElementById("numero");
-          if (data.numero && data.numero.trim() !== "") {
-            numeroElement.textContent = data.numero;
-          } else {
-            numeroElement.textContent = "Número no disponible";
+          try {
+            // Intenta parsear la respuesta como JSON
+            const jsonData = JSON.parse(data);
+            const numeroElement = document.getElementById("numero");
+            
+            if (jsonData.numero && jsonData.numero.trim() !== "") {
+              numeroElement.textContent = jsonData.numero;
+            } else {
+              numeroElement.textContent = "Número no disponible";
+            }
+          } catch (e) {
+            console.error("Error al parsear la respuesta:", e, "Respuesta:", data);
+            document.getElementById("numero").textContent = "Error en formato";
           }
         })
         .catch(error => {
           console.error("Error al obtener el número:", error);
-          document.getElementById("numero").textContent = "Error al cargar";
+          document.getElementById("numero").textContent = "Error de conexión";
         });
     }
     
@@ -160,6 +172,12 @@
     
     // Actualizar cada 5 segundos
     setInterval(cargarNumero, 5000);
+    
+    // Monitorear errores en la consola
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log("Error detectado:", message, "en", source, "línea", lineno);
+      return false;
+    };
   </script>
 </body>
 </html>
