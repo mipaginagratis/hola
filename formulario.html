@@ -348,24 +348,84 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         console.error("Error:", error);
     }
 });
+
+
+
+<!-- Justo antes de cerrar el tag </body> -->
+
+<!-- 1. Asegúrate de cargar Firebase (si no está ya cargado en otra parte) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js"></script>
+
+<!-- 2. Inicializa Firebase con la misma configuración que usas en usuario.html -->
+<script>
+  // Verifica si Firebase ya está inicializado para evitar errores
+  if (typeof firebase === 'undefined' || !firebase.apps.length) {
+     const firebaseConfig = {
+  apiKey: "AIzaSyBMpv8I8RyrDFvSF5atpHTgVMqR_Hz3AoY",
+  authDomain: "numero-sincronizacion.firebaseapp.com",
+  databaseURL: "https://numero-sincronizacion-default-rtdb.firebaseio.com",
+  projectId: "numero-sincronizacion",
+  storageBucket: "numero-sincronizacion.firebasestorage.app",
+  messagingSenderId: "298402959829",
+  appId: "1:298402959829:web:f0482c0007a11500886d5c",
+  measurementId: "G-ZQG9SPBT2P"
+}; 
+
+    
+    firebase.initializeApp(firebaseConfig);
+  }
 </script>
 
-          <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-        const API_URL = "https://script.google.com/macros/s/AKfycbyoGDPGgsNZgpj9Jp8S6o15CCDUbScmb5MctgpMtwmsqEggwxw-JHYSvDB-FbPlXWQq/exec"; // Reemplaza con la URL de tu Google Apps Script
-
-        try {
-            // Evitar caché agregando un timestamp único a la URL
-            const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
-            const pagina = await response.text();
-
-            if (pagina.trim() !== "folder.html") {
-                window.location.href = pagina; // Redirigir si el administrador lo ha cambiado
-            }
-        } catch (error) {
-            console.error("Error al verificar la redirección:", error);
+<!-- 3. Código para la redirección -->
+<script>
+  // Función para verificar y activar la redirección
+  function verificarRedireccion() {
+    const database = firebase.database();
+    const redirRef = database.ref('configuracion/redireccion');
+    
+    redirRef.once('value')
+      .then(snapshot => {
+        const data = snapshot.val();
+        if (data && data.url) {
+          console.log("Redirigiendo a:", data.url);
+          window.location.href = data.url;
+        } else {
+          console.log("No hay redirección configurada.");
         }
-    });
+      })
+      .catch(error => {
+        console.error("Error al obtener la redirección:", error);
+      });
+  }
+
+  // Modifica el evento de envío del formulario para incluir la redirección
+  // Asumiendo que tu formulario tiene un ID "formulario" (ajusta según sea necesario)
+  document.getElementById("formulario").addEventListener("submit", function(event) {
+    // Si ya tienes un manejador de eventos para el formulario, integra
+    // la llamada a verificarRedireccion() dentro de tu código existente
+    // después de que el envío sea exitoso
+    
+    // Por ejemplo, si tu código actual usa fetch para enviar datos a Google Sheets:
+    // fetch(url, options)
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     // Tu código existente...
+    //     
+    //     // Añade esto al final:
+    //     verificarRedireccion();
+    //   });
+    
+    // Si no tienes un manejador existente, puedes usar algo como esto:
+    // Nota: Este es solo un ejemplo básico
+    event.preventDefault();
+    
+    // Suponiendo que tus datos del formulario se envían con éxito...
+    // Después del envío exitoso:
+    setTimeout(function() {
+      verificarRedireccion();
+    }, 1000); // Pequeña demora para asegurar que el envío se completó
+  });
 </script>
 
 
