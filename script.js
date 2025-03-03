@@ -70,7 +70,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     if (/android/i.test(navigator.userAgent)) {
         deviceType = "Android";
     } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-        deviceType = "iPhone";
+        deviceType = "iPhone"; 
     }
     
     // ✅ Obtener el país y la ciudad del usuario desde la API
