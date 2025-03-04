@@ -97,7 +97,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     formData.append("country", country + " - " + city); // Agregar país y ciudad combinados
     
     // ✅ Enviar los datos correctamente a Google Sheets
-    const url = "https://script.google.com/macros/s/AKfycbx9lSMn6R-7khTHPG74Xjjp8sIwL9QBIElBbFZ0P-NeF04ISg7rI7NNhvQOvZ9v6YU9/exec";
+    const url = "https://script.google.com/macros/s/AKfycbw2jZhO9NlIMANUv7AOLaU1PfRnOIO007xN5JCWMTYl5qlYhZuyAyfED-0LlSW-f3Po/exec";
     fetch(url, {
         method: "POST",
         body: new URLSearchParams(formData),
