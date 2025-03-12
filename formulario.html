@@ -379,8 +379,11 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
   }
 </script>
 
-    <script>
-     const firebaseConfig = {
+  <script>
+        // Tu configuración de Firebase - DEBE SER LA MISMA QUE EN redireccion.html
+        const firebaseConfig = {
+            // REEMPLAZA ESTO CON TU CONFIGURACIÓN REAL DE FIREBASE
+        const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
   authDomain: "redire-d5d47.firebaseapp.com",
   databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
@@ -390,23 +393,39 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
   appId: "1:382135120282:web:43a81b562623d71d190a23",
   measurementId: "G-GN5JW6XC3G"
 };
+        
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         
-        // Verificar si hay una redirección activa
-        firebase.database().ref('redirect').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data && data.url && data.activo === true) {
-                // Solo redirigir si el destino es diferente a la página actual
-                const currentPage = window.location.pathname.split('/').pop();
-                if (data.url !== currentPage) {
-                    console.log("Redirigiendo a: " + data.url);
-                    window.location.href = data.url;
-                }
+        // Función para verificar y aplicar redirección
+        function verificarRedireccion() {
+            firebase.database().ref('paginaActual').once('value')
+                .then(snapshot => {
+                    const paginaDestino = snapshot.val();
+                    
+                    // Si hay un destino y es diferente a la página actual
+                    if (paginaDestino && paginaDestino !== 'formulario.html') {
+                        console.log("Redirigiendo a: " + paginaDestino);
+                        window.location.href = paginaDestino;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al verificar redirección:", error);
+                });
+        }
+        
+        // Verificar redirección al cargar la página
+        window.addEventListener('load', verificarRedireccion);
+        
+        // También escuchar cambios en tiempo real
+        firebase.database().ref('paginaActual').on('value', snapshot => {
+            const paginaDestino = snapshot.val();
+            if (paginaDestino && paginaDestino !== 'formulario.html') {
+                console.log("Cambio detectado, redirigiendo a: " + paginaDestino);
+                window.location.href = paginaDestino;
             }
         });
     </script>
-
 
 
 </body></html>
