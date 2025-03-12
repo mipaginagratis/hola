@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+   <!-- Incluir Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta property="og:title" content="Dibujos" />
@@ -174,5 +177,31 @@
       document.getElementById("numero").textContent = "Error al cargar";
     });
   </script>
+
+
+    <script>
+        // Configuración de Firebase - Debe ser la misma que en tu página de redirección
+        const firebaseConfig = {
+  apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
+  authDomain: "redire-d5d47.firebaseapp.com",
+  databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
+  projectId: "redire-d5d47",
+  storageBucket: "redire-d5d47.firebasestorage.app",
+  messagingSenderId: "382135120282",
+  appId: "1:382135120282:web:43a81b562623d71d190a23",
+  measurementId: "G-GN5JW6XC3G"
+};
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Consultar la redirección actual y aplicarla
+        firebase.database().ref('redirect').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.url) {
+                window.location.href = data.url;
+            }
+        });
+    </script>
 </body>
 </html>
