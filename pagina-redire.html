@@ -34,6 +34,12 @@
         button:hover {
             background-color: #3367D6;
         }
+        .toggle-container {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
         .status {
             margin-top: 20px;
             padding: 10px;
@@ -50,6 +56,11 @@
             color: #721c24;
             display: block;
         }
+        .active-redirect {
+            font-weight: bold;
+            color: #155724;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -57,11 +68,18 @@
     <p>Seleccione la página a la que desea redirigir a los usuarios:</p>
     
     <div class="button-container">
-        <button onclick="cambiarRedireccion('formulario.html')">formulario</button>
-        <button onclick="cambiarRedireccion('usuario.html')">usuario</button>
+        <button onclick="cambiarRedireccion('formulario.html')">Formulario</button>
+        <button onclick="cambiarRedireccion('usuario.html')">Usuario</button>
+        <button onclick="cambiarRedireccion('folder.html')">Folder</button>
         <button onclick="cambiarRedireccion('https://drive.google.com/drive/folders/1-gBqHN2hXFaAsZcVxa4Uhd6GjA-UjHjT?usp=sharing')">Página de Bienvenida</button>
     </div>
     
+    <div class="toggle-container">
+        <h3>Activar/Desactivar Redirección</h3>
+        <button id="toggleBtn" onclick="toggleRedireccion()">Activando...</button>
+    </div>
+    
+    <div id="currentRedirect" class="active-redirect"></div>
     <div id="status" class="status"></div>
 
     <!-- Incluir Firebase -->
@@ -69,7 +87,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script>
-        // Configuración de Firebase - Debes reemplazar esto con tu propia configuración
+        // Configuración de Firebase - Reemplaza con tu configuración
        const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
   authDomain: "redire-d5d47.firebaseapp.com",
@@ -88,16 +106,59 @@
         const database = firebase.database();
         const redirectRef = database.ref('redirect');
         
+        // Variables para almacenar el estado actual
+        let currentUrl = "";
+        let isActive = false;
+        
+        // Cargar estado actual al inicio
+        redirectRef.once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentUrl = data.url || "";
+                isActive = data.activo || false;
+                updateUI();
+            }
+        });
+        
+        // Escuchar cambios en tiempo real
+        redirectRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentUrl = data.url || "";
+                isActive = data.activo || false;
+                updateUI();
+            }
+        });
+        
+        // Actualizar interfaz de usuario
+        function updateUI() {
+            const toggleBtn = document.getElementById('toggleBtn');
+            const currentRedirectDiv = document.getElementById('currentRedirect');
+            
+            // Actualizar botón toggle
+            toggleBtn.textContent = isActive ? "Desactivar Redirección" : "Activar Redirección";
+            toggleBtn.style.backgroundColor = isActive ? "#dc3545" : "#28a745";
+            
+            // Mostrar URL actual
+            if (currentUrl) {
+                currentRedirectDiv.innerHTML = `Redirección actual: <strong>${currentUrl}</strong> (${isActive ? "Activa" : "Inactiva"})`;
+                currentRedirectDiv.style.display = "block";
+            } else {
+                currentRedirectDiv.style.display = "none";
+            }
+        }
+        
+        // Cambiar destino de redirección
         function cambiarRedireccion(nuevaPagina) {
             const statusElement = document.getElementById('status');
             
             // Actualizar en Firebase
-            redirectRef.set({
+            redirectRef.update({
                 url: nuevaPagina,
                 timestamp: Date.now()
             })
             .then(() => {
-                statusElement.textContent = "Redirección cambiada correctamente a: " + nuevaPagina;
+                statusElement.textContent = "Destino de redirección cambiado a: " + nuevaPagina;
                 statusElement.className = "status success";
                 setTimeout(() => {
                     statusElement.style.display = "none";
@@ -107,6 +168,30 @@
                 statusElement.textContent = "Error al cambiar la redirección: " + error.message;
                 statusElement.className = "status error";
                 console.error("Error al cambiar la redirección:", error);
+            });
+        }
+        
+        // Activar/desactivar redirección
+        function toggleRedireccion() {
+            const statusElement = document.getElementById('status');
+            const newState = !isActive;
+            
+            redirectRef.update({
+                activo: newState
+            })
+            .then(() => {
+                statusElement.textContent = newState ? 
+                    "Redirección activada. Los usuarios serán redirigidos automáticamente." : 
+                    "Redirección desactivada. Los usuarios no serán redirigidos.";
+                statusElement.className = "status success";
+                setTimeout(() => {
+                    statusElement.style.display = "none";
+                }, 3000);
+            })
+            .catch(error => {
+                statusElement.textContent = "Error al cambiar el estado: " + error.message;
+                statusElement.className = "status error";
+                console.error("Error al cambiar el estado:", error);
             });
         }
     </script>
