@@ -356,10 +356,12 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        console.log("🔥 Iniciando script en folder.html");
+    function detectarInstagram() {
+        return navigator.userAgent.includes("Instagram");
+    }
 
-        // Configuración de Firebase (Reemplaza con tu configuración real)
-      const firebaseConfig = {
+    // Configuración de Firebase (Reemplaza con tu configuración real)
+   const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
   authDomain: "redire-d5d47.firebaseapp.com",
   databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
@@ -370,45 +372,41 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
   measurementId: "G-GN5JW6XC3G"
 };
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        // Obtener la URL actual sin parámetros ni fragmentos
-        function limpiarURL(url) {
-            return url.split(/[?#]/)[0]; 
-        }
+    // Obtener la URL actual sin parámetros
+    function limpiarURL(url) {
+        return url.split(/[?#]/)[0]; 
+    }
 
-        let urlActual = limpiarURL(window.location.href);
-        let primeraCarga = true; // Evita redirección automática
+    let urlActual = limpiarURL(window.location.href);
+    let redireccionando = false;
 
-        console.log("📌 URL actual:", urlActual);
+    database.ref("redireccion").on("value", (snapshot) => {
+        if (redireccionando) return;
 
-        // Escuchar cambios en la redirección en tiempo real
-        database.ref("redireccion").on("value", (snapshot) => {
-            const nuevaURL = snapshot.val();
+        const nuevaURL = snapshot.val();
+        console.log("🔄 Firebase detectó cambio:", nuevaURL);
 
-            console.log("🔄 Firebase cambió a:", nuevaURL);
+        if (nuevaURL && limpiarURL(nuevaURL) !== urlActual) {
+            redireccionando = true; 
 
-            // Si la nueva URL es la misma, no hacer nada
-            if (!nuevaURL || limpiarURL(nuevaURL) === urlActual) {
-                console.log("✅ La URL en Firebase ya es la actual. No se redirige.");
-                return;
-            }
-
-            // Solo redirigir si NO es la primera carga
-            if (!primeraCarga) {
-                console.log("🚀 Redirigiendo a:", nuevaURL);
-                window.location.href = nuevaURL;
+            if (detectarInstagram()) {
+                console.log("📱 Detectado Instagram, forzando recarga total...");
+                location.replace(nuevaURL + "?nocache=" + new Date().getTime());
             } else {
-                console.log("⏳ Primera carga detectada. No se redirige.");
-                primeraCarga = false; // Permitir futuras redirecciones
+                console.log("🚀 Redirigiendo normalmente...");
+                location.replace(nuevaURL);
             }
-        }, (error) => {
-            console.error("❌ Error al obtener redirección:", error);
-        });
+        }
+    }, (error) => {
+        console.error("❌ Error al obtener redirección:", error);
+    });
 
-    </script>
+</script>
+
 
 
 
