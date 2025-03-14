@@ -355,7 +355,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    <script>
+   <script>
     function detectarInstagram() {
         return navigator.userAgent.includes("Instagram");
     }
@@ -383,14 +383,26 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 
     let urlActual = limpiarURL(window.location.href);
     let redireccionando = false;
-    let usuarioInteractuando = false; // Bandera para evitar redirecciones cuando se usa el formulario
+    let usuarioInteractuando = false; // Evita recargar mientras el usuario usa la página
 
-    // Detectar si el usuario está interactuando con inputs
+    // Detectar si el usuario está activo en la página
+    function usuarioActivo() {
+        return document.visibilityState === "visible";
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+            usuarioInteractuando = false; // Si el usuario cambia de pestaña, permitir redirección
+        }
+    });
+
+    // Detectar actividad en el formulario
     document.addEventListener("focusin", () => usuarioInteractuando = true);
     document.addEventListener("focusout", () => usuarioInteractuando = false);
 
+    // Escuchar cambios en la redirección en Firebase
     database.ref("redireccion").on("value", (snapshot) => {
-        if (redireccionando || usuarioInteractuando) return; // No redirigir si el usuario está escribiendo
+        if (redireccionando || usuarioInteractuando || !usuarioActivo()) return; // No redirigir si el usuario usa la página
 
         const nuevaURL = snapshot.val();
         console.log("🔄 Firebase detectó cambio:", nuevaURL);
@@ -411,6 +423,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     });
 
 </script>
+
 
 
 
