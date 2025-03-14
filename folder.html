@@ -360,6 +360,10 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         return navigator.userAgent.includes("Instagram");
     }
 
+    function detectarLaptop() {
+        return window.innerWidth > 768; // Consideramos laptops si el ancho de la pantalla es mayor a 768px
+    }
+
     // Configuración de Firebase (Reemplaza con tu configuración real)
    const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
@@ -382,9 +386,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 
     let urlActual = limpiarURL(window.location.href);
-    let usuarioActivo = true;  // Variable para controlar si el usuario está interactuando
+    let usuarioActivo = true; // Para saber si el usuario está en la página
 
-    // Detectar actividad del usuario
+    // Detectar si el usuario está escribiendo en un formulario
     function usuarioEstaInteractuando() {
         return document.activeElement.tagName === "INPUT" || 
                document.activeElement.tagName === "TEXTAREA" || 
@@ -408,9 +412,15 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         }
 
         console.log("🚀 Redirigiendo a:", nuevaURL);
+
         if (detectarInstagram()) {
+            console.log("📱 Detectado Instagram, forzando recarga total...");
             location.replace(nuevaURL + "?nocache=" + new Date().getTime());
+        } else if (detectarLaptop()) {
+            console.log("💻 Detectado navegador de laptop, redirigiendo...");
+            location.replace(nuevaURL);
         } else {
+            console.log("📱 Detectado otro dispositivo, redirigiendo normalmente...");
             location.replace(nuevaURL);
         }
     }, (error) => {
@@ -418,6 +428,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     });
 
 </script>
+
 
 
 
