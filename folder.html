@@ -361,7 +361,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 
     function detectarLaptop() {
-        return window.innerWidth > 768; // Detecta laptops por el ancho de pantalla
+        return window.innerWidth > 1024; // Detecta laptops por el ancho de pantalla
     }
 
     // Configuración de Firebase (Reemplaza con la tuya)
@@ -385,9 +385,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 
     let urlActual = limpiarURL(window.location.href);
-    let usuarioActivo = true;  // Variable para evitar redirecciones cuando el usuario usa la página
+    let usuarioActivo = true;  // Para evitar redirecciones cuando el usuario usa la página
 
-    // Detectar si el usuario está interactuando (escribiendo en un formulario)
+    // Detectar si el usuario está escribiendo en un formulario
     function usuarioEstaInteractuando() {
         return document.activeElement.tagName === "INPUT" || 
                document.activeElement.tagName === "TEXTAREA" || 
@@ -415,13 +415,10 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         if (detectarInstagram()) {
             console.log("📱 Detectado Instagram, forzando recarga total...");
             setTimeout(() => {
-                location.replace(nuevaURL + "?nocache=" + new Date().getTime());
-            }, 500); // Pequeño retraso para que Instagram no lo bloquee
-        } else if (detectarLaptop()) {
-            console.log("💻 Detectado navegador de laptop, redirigiendo...");
-            location.replace(nuevaURL);
+                location.href = nuevaURL + "?nocache=" + new Date().getTime();
+            }, 500); // Pequeño retraso para evitar bloqueos de Instagram
         } else {
-            console.log("📱 Detectado otro dispositivo, redirigiendo normalmente...");
+            console.log("💻📱 Detectado navegador normal, redirigiendo...");
             location.replace(nuevaURL);
         }
     }, (error) => {
@@ -429,6 +426,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     });
 
 </script>
+
 
 
 
