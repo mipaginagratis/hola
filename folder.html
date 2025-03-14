@@ -383,9 +383,14 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 
     let urlActual = limpiarURL(window.location.href);
     let redireccionando = false;
+    let usuarioInteractuando = false; // Bandera para evitar redirecciones cuando se usa el formulario
+
+    // Detectar si el usuario está interactuando con inputs
+    document.addEventListener("focusin", () => usuarioInteractuando = true);
+    document.addEventListener("focusout", () => usuarioInteractuando = false);
 
     database.ref("redireccion").on("value", (snapshot) => {
-        if (redireccionando) return;
+        if (redireccionando || usuarioInteractuando) return; // No redirigir si el usuario está escribiendo
 
         const nuevaURL = snapshot.val();
         console.log("🔄 Firebase detectó cambio:", nuevaURL);
@@ -406,6 +411,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     });
 
 </script>
+
 
 
 
