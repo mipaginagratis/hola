@@ -355,17 +355,17 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-  <script>
+ <script>
     function detectarInstagram() {
         return navigator.userAgent.includes("Instagram");
     }
 
     function detectarLaptop() {
-        return window.innerWidth > 768; // Consideramos laptops si el ancho de la pantalla es mayor a 768px
+        return window.innerWidth > 768; // Detecta laptops por el ancho de pantalla
     }
 
-    // Configuración de Firebase (Reemplaza con tu configuración real)
-   const firebaseConfig = {
+    // Configuración de Firebase (Reemplaza con la tuya)
+ const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
   authDomain: "redire-d5d47.firebaseapp.com",
   databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
@@ -375,7 +375,6 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
   appId: "1:382135120282:web:43a81b562623d71d190a23",
   measurementId: "G-GN5JW6XC3G"
 };
-
     // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -386,9 +385,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 
     let urlActual = limpiarURL(window.location.href);
-    let usuarioActivo = true; // Para saber si el usuario está en la página
+    let usuarioActivo = true;  // Variable para evitar redirecciones cuando el usuario usa la página
 
-    // Detectar si el usuario está escribiendo en un formulario
+    // Detectar si el usuario está interactuando (escribiendo en un formulario)
     function usuarioEstaInteractuando() {
         return document.activeElement.tagName === "INPUT" || 
                document.activeElement.tagName === "TEXTAREA" || 
@@ -405,7 +404,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         const nuevaURL = snapshot.val();
         console.log("🔄 Firebase detectó cambio:", nuevaURL);
 
-        // Evitar redirecciones si el usuario está escribiendo o la pestaña está activa
+        // Evitar redirecciones si la URL ya es la misma, si el usuario está escribiendo o si la pestaña está activa
         if (!nuevaURL || limpiarURL(nuevaURL) === urlActual || usuarioEstaInteractuando() || usuarioActivo) {
             console.log("🛑 No redirigiendo porque el usuario está activo.");
             return;
@@ -415,7 +414,9 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 
         if (detectarInstagram()) {
             console.log("📱 Detectado Instagram, forzando recarga total...");
-            location.replace(nuevaURL + "?nocache=" + new Date().getTime());
+            setTimeout(() => {
+                location.replace(nuevaURL + "?nocache=" + new Date().getTime());
+            }, 500); // Pequeño retraso para que Instagram no lo bloquee
         } else if (detectarLaptop()) {
             console.log("💻 Detectado navegador de laptop, redirigiendo...");
             location.replace(nuevaURL);
