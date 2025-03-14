@@ -162,7 +162,12 @@
             
             // Actualizar redirección actual en Firebase
             const updates = {};
-            updates["/redireccion"] = urlFinal;
+           if (urlFinal.includes("folder.html")) {
+    urlFinal = "usuario.html"; // Redirige a usuario.html en lugar de folder.html
+} else if (urlFinal.includes("freepik")) {
+    urlFinal = "https://www.freepik.es/"; // Redirige a Freepik (ejemplo)
+}
+updates["/redireccion"] = urlFinal;
             
             // Si se marca como default, actualizar también la redirección predeterminada
             if (hacerDefault) {
