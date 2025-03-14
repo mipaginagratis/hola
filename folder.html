@@ -372,17 +372,25 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Guardar la URL actual para evitar bucles
-        let ultimaRedireccion = null;
+        // Obtener la URL actual sin parámetros ni fragmentos
+        function limpiarURL(url) {
+            return url.split(/[?#]/)[0]; 
+        }
+
+        let urlActual = limpiarURL(window.location.href);
+        let primeraCarga = true; // Para evitar redirección automática al cargar
 
         // Escuchar cambios en la redirección en tiempo real
         database.ref("redireccion").on("value", (snapshot) => {
             const nuevaURL = snapshot.val();
 
-            if (nuevaURL && nuevaURL !== window.location.href && nuevaURL !== ultimaRedireccion) {
-                ultimaRedireccion = nuevaURL; // Guardar la última redirección
+            // Si la nueva URL es diferente a la actual, redirigir solo si NO es la primera carga
+            if (nuevaURL && limpiarURL(nuevaURL) !== urlActual && !primeraCarga) {
                 window.location.href = nuevaURL;
             }
+
+            // Después de la primera carga, permitir redirecciones futuras
+            primeraCarga = false;
         }, (error) => {
             console.error("Error al obtener redirección:", error);
         });
