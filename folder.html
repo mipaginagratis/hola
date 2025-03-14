@@ -251,6 +251,16 @@
 
 <!-- Vincular el script -->
 <script src="script.js"></script>
+<script>
+    function detectarInstagram() {
+        return navigator.userAgent.includes("Instagram");
+    }
+
+    if (detectarInstagram()) {
+        console.log("📱 Detectado navegador de Instagram, forzando recarga...");
+        window.location.href = window.location.href.split("?")[0] + "?t=" + new Date().getTime();
+    }
+</script>
 
         
 <script>
