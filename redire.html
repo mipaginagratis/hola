@@ -4,41 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecciones</title>
+    <!-- Meta tags para control de caché -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            width: 200px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-
+    <h1>Redirecciones</h1>
     <button onclick="cambiarRedireccion('folder.html')">Folder</button>
     <button onclick="cambiarRedireccion('invitation.html')">Invitation</button>
     <button onclick="cambiarRedireccion('https://www.freepik.es/')">Página de Bienvenida</button>
-
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <script>
-        // Configuración de Firebase
-      const firebaseConfig = {
-  apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
-  authDomain: "redire-d5d47.firebaseapp.com",
-  databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
-  projectId: "redire-d5d47",
-  storageBucket: "redire-d5d47.firebasestorage.app",
-  messagingSenderId: "382135120282",
-  appId: "1:382135120282:web:43a81b562623d71d190a23",
-  measurementId: "G-GN5JW6XC3G"
-};
+        // Función para detectar Instagram
+        function detectarInstagram() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            return userAgent.includes("instagram") || 
+                   userAgent.includes("insta") || 
+                   document.referrer.includes("instagram");
+        }
 
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
+            authDomain: "redire-d5d47.firebaseapp.com",
+            databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
+            projectId: "redire-d5d47",
+            storageBucket: "redire-d5d47.firebasestorage.app",
+            messagingSenderId: "382135120282",
+            appId: "1:382135120282:web:43a81b562623d71d190a23",
+            measurementId: "G-GN5JW6XC3G"
+        };
+        
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
-        // Función para cambiar la URL en Firebase
+        
+        // Verificar si es una URL completa o relativa
+        function esURLCompleta(url) {
+            return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//');
+        }
+        
+        // Función mejorada para cambiar la URL en Firebase
         function cambiarRedireccion(nuevaPagina) {
-            database.ref("redireccion").set(nuevaPagina)
-                .then(() => alert("Redirección cambiada a " + nuevaPagina))
-                .catch(error => console.error("Error al cambiar la redirección:", error));
+            let urlFinal;
+            
+            // Si es una URL relativa, construir la URL completa
+            if (!esURLCompleta(nuevaPagina)) {
+                const baseUrl = window.location.href.split('/').slice(0, -1).join('/') + '/';
+                urlFinal = baseUrl + nuevaPagina;
+            } else {
+                urlFinal = nuevaPagina;
+            }
+            
+            // Agregar parámetro para evitar caché
+            const esInstagram = detectarInstagram();
+            if (esInstagram || true) { // Siempre añadir anti-caché para más seguridad
+                const timestamp = Date.now() + Math.random().toString(36).substring(2, 8);
+                const separador = urlFinal.includes('?') ? '&' : '?';
+                urlFinal = urlFinal + separador + '_nocache=' + timestamp;
+            }
+            
+            console.log("🔄 Cambiando redirección a:", urlFinal);
+            
+            // Actualizar en Firebase
+            database.ref("redireccion").set(urlFinal)
+                .then(() => {
+                    console.log("✅ Redirección actualizada correctamente");
+                    alert("Redirección cambiada a " + nuevaPagina);
+                })
+                .catch(error => {
+                    console.error("❌ Error al cambiar la redirección:", error);
+                    alert("Error: " + error.message);
+                });
         }
     </script>
-
 </body>
 </html>
