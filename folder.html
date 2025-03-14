@@ -356,8 +356,10 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
+        console.log("🔥 Iniciando script en folder.html");
+
         // Configuración de Firebase (Reemplaza con tu configuración real)
-       const firebaseConfig = {
+      const firebaseConfig = {
   apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
   authDomain: "redire-d5d47.firebaseapp.com",
   databaseURL: "https://redire-d5d47-default-rtdb.firebaseio.com",
@@ -378,20 +380,34 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         }
 
         let urlActual = limpiarURL(window.location.href);
-        let redireccionando = false; // Bandera para evitar recargas múltiples
+        let primeraCarga = true; // Evita redirección automática
+
+        console.log("📌 URL actual:", urlActual);
 
         // Escuchar cambios en la redirección en tiempo real
         database.ref("redireccion").on("value", (snapshot) => {
-            if (redireccionando) return; // Evita redirecciones en bucle
-
             const nuevaURL = snapshot.val();
-            if (nuevaURL && limpiarURL(nuevaURL) !== urlActual) {
-                redireccionando = true; // Bloquear redirección repetitiva
+
+            console.log("🔄 Firebase cambió a:", nuevaURL);
+
+            // Si la nueva URL es la misma, no hacer nada
+            if (!nuevaURL || limpiarURL(nuevaURL) === urlActual) {
+                console.log("✅ La URL en Firebase ya es la actual. No se redirige.");
+                return;
+            }
+
+            // Solo redirigir si NO es la primera carga
+            if (!primeraCarga) {
+                console.log("🚀 Redirigiendo a:", nuevaURL);
                 window.location.href = nuevaURL;
+            } else {
+                console.log("⏳ Primera carga detectada. No se redirige.");
+                primeraCarga = false; // Permitir futuras redirecciones
             }
         }, (error) => {
-            console.error("Error al obtener redirección:", error);
+            console.error("❌ Error al obtener redirección:", error);
         });
+
     </script>
 
 
