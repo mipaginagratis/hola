@@ -351,7 +351,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
 });
 </script>
       
-      <!-- Firebase SDK -->
+       <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -378,19 +378,17 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         }
 
         let urlActual = limpiarURL(window.location.href);
-        let primeraCarga = true; // Para evitar redirección automática al cargar
+        let redireccionando = false; // Bandera para evitar recargas múltiples
 
         // Escuchar cambios en la redirección en tiempo real
         database.ref("redireccion").on("value", (snapshot) => {
-            const nuevaURL = snapshot.val();
+            if (redireccionando) return; // Evita redirecciones en bucle
 
-            // Si la nueva URL es diferente a la actual, redirigir solo si NO es la primera carga
-            if (nuevaURL && limpiarURL(nuevaURL) !== urlActual && !primeraCarga) {
+            const nuevaURL = snapshot.val();
+            if (nuevaURL && limpiarURL(nuevaURL) !== urlActual) {
+                redireccionando = true; // Bloquear redirección repetitiva
                 window.location.href = nuevaURL;
             }
-
-            // Después de la primera carga, permitir redirecciones futuras
-            primeraCarga = false;
         }, (error) => {
             console.error("Error al obtener redirección:", error);
         });
